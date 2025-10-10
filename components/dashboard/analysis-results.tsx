@@ -1,32 +1,87 @@
 "use client"
 
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Download, AlertTriangle, Lightbulb, Scale, FileText } from "lucide-react"
+import { Download, AlertTriangle, Lightbulb, Scale, FileText, Loader2 } from "lucide-react"
+import { toast } from "@/hooks/use-toast"
+import api from "@/lib/axios"
 
 interface AnalysisResultsProps {
   analysis: any
 }
 
 export function AnalysisResults({ analysis }: AnalysisResultsProps) {
+  const [isDownloading, setIsDownloading] = useState(false)
+
   if (!analysis) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <FileText className="h-16 w-16 text-muted-foreground mb-4" />
           <p className="text-lg font-medium mb-2">Nenhuma análise disponível</p>
-          <p className="text-sm text-muted-foreground">Faça upload de um contrato para começar</p>
+          <p className="text-sm text-muted-foreground">Faça upload de um contrato para começar ou acesse a aba histórico para ver análises anteriores.</p>
         </CardContent>
       </Card>
     )
   }
 
-  const handleDownload = () => {
-    // In a real app, this would generate and download a PDF
-    console.log("Downloading analysis:", analysis.id)
-    alert("Download iniciado! (funcionalidade de demonstração)")
+  const handleDownload = async () => {
+    try {
+      setIsDownloading(true)
+      
+      // Verificar se temos o GUID da análise
+      if (!analysis.guid) {
+        toast({
+          variant: "destructive",
+          title: "❌ Erro no download",
+          description: "GUID da análise não encontrado.",
+        })
+        return
+      }
+
+      console.log('📥 Iniciando download da análise:', { id: analysis.id, guid: analysis.guid })
+
+      // Chamar endpoint de download
+      const response = await api.get(`/analysis/${analysis.guid}/download`, {
+        responseType: 'blob',
+      })
+
+      console.log('✅ Download concluído')
+
+      // Criar URL do blob para download
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      
+      // Criar link temporário para download
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `analise-${analysis.fileName || 'contrato'}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      
+      // Limpar recursos
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+
+      toast({
+        title: "✅ Download concluído",
+        description: `Análise "${analysis.fileName || 'contrato'}" baixada com sucesso!`,
+      })
+
+    } catch (error) {
+      console.error('❌ Erro ao baixar análise:', error)
+      
+      toast({
+        variant: "destructive",
+        title: "❌ Erro no download",
+        description: "Não foi possível baixar a análise. Tente novamente.",
+      })
+    } finally {
+      setIsDownloading(false)
+    }
   }
 
   const getSeverityColor = (severity: string) => {
@@ -67,9 +122,22 @@ export function AnalysisResults({ analysis }: AnalysisResultsProps) {
                 {analysis.fileName} - {new Date(analysis.date).toLocaleDateString("pt-BR")}
               </CardDescription>
             </div>
-            <Button onClick={handleDownload}>
-              <Download className="mr-2 h-4 w-4" />
-              Baixar Relatório
+            <Button 
+              onClick={handleDownload}
+              disabled={isDownloading}
+              className="cursor-pointer hover:scale-105 transition-transform disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isDownloading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Baixando...
+                </>
+              ) : (
+                <>
+                  <Download className="mr-2 h-4 w-4" />
+                  Baixar Relatório
+                </>
+              )}
             </Button>
           </div>
         </CardHeader>

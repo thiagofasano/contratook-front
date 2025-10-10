@@ -6,12 +6,25 @@ import { useState, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Upload, FileText, Loader2 } from "lucide-react"
+import { toast } from "@/hooks/use-toast"
+import api from "@/lib/axios"
+import { getAnalysisErrorMessage } from "@/lib/error-utils"
+
+// Interface para a resposta da API de análise
+interface AnalysisResponse {
+  resumo: string
+  pontosAtencao: string[]
+  sugestoes: string[]
+  leis: string[]
+  guid?: string // GUID da análise para download
+}
 
 interface UploadSectionProps {
   onAnalysisComplete: (analysis: any) => void
+  onStatsUpdate?: () => Promise<void>
 }
 
-export function UploadSection({ onAnalysisComplete }: UploadSectionProps) {
+export function UploadSection({ onAnalysisComplete, onStatsUpdate }: UploadSectionProps) {
   const [file, setFile] = useState<File | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [dragActive, setDragActive] = useState(false)
@@ -47,74 +60,77 @@ export function UploadSection({ onAnalysisComplete }: UploadSectionProps) {
 
     setIsAnalyzing(true)
 
-    // Simulate AI analysis
-    setTimeout(() => {
-      const mockAnalysis = {
+    try {
+      // Criar FormData para envio multipart
+      const formData = new FormData()
+      formData.append('file', file)
+
+      console.log('📤 Enviando arquivo para análise:', file.name)
+
+      // Chamar endpoint de análise
+      const response = await api.post<AnalysisResponse>('/analysis/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+
+      console.log('✅ Análise recebida:', response.data)
+
+      // Transformar resposta da API para o formato esperado pelo componente
+      const analysisData = {
         id: Date.now(),
         fileName: file.name,
         date: new Date().toISOString(),
-        abusiveClauses: [
-          {
-            id: 1,
-            clause: "Cláusula 5.2 - Foro de Eleição",
-            description:
-              "O contrato estabelece foro exclusivo em comarca distante da residência do consumidor, dificultando o acesso à justiça.",
-            severity: "high",
-            law: "Art. 51, IV do CDC - Código de Defesa do Consumidor",
-          },
-          {
-            id: 2,
-            clause: "Cláusula 8.1 - Multa Rescisória",
-            description: "Multa rescisória de 40% é considerada abusiva por ser desproporcional.",
-            severity: "medium",
-            law: "Art. 51, IV do CDC - Cláusulas que estabeleçam obrigações iníquas",
-          },
-        ],
-        suggestions: [
-          {
-            id: 1,
-            title: "Incluir Cláusula de Confidencialidade",
-            description: "Recomenda-se adicionar cláusula específica sobre tratamento de dados pessoais conforme LGPD.",
-            priority: "high",
-          },
-          {
-            id: 2,
-            title: "Definir Prazo de Vigência",
-            description: "Estabelecer prazo determinado para vigência do contrato com possibilidade de renovação.",
-            priority: "medium",
-          },
-          {
-            id: 3,
-            title: "Especificar Forma de Pagamento",
-            description: "Detalhar condições, prazos e formas de pagamento de forma mais clara.",
-            priority: "low",
-          },
-        ],
-        laws: [
-          {
-            id: 1,
-            title: "Lei nº 8.078/1990 - Código de Defesa do Consumidor",
-            articles: ["Art. 51, IV", "Art. 51, XV"],
-            relevance: "Aplicável às cláusulas abusivas identificadas",
-          },
-          {
-            id: 2,
-            title: "Lei nº 13.709/2018 - LGPD",
-            articles: ["Art. 7º", "Art. 8º"],
-            relevance: "Necessário para tratamento de dados pessoais",
-          },
-          {
-            id: 3,
-            title: "Lei nº 10.406/2002 - Código Civil",
-            articles: ["Art. 421", "Art. 422"],
-            relevance: "Princípios gerais de contratos",
-          },
-        ],
+        summary: response.data.resumo,
+        guid: response.data.guid, // Incluir GUID para download
+        abusiveClauses: response.data.pontosAtencao.map((ponto, index) => ({
+          id: index + 1,
+          clause: `Ponto de Atenção ${index + 1}`,
+          description: ponto,
+          severity: index < 2 ? "high" : index < 4 ? "medium" : "low", // Distribuir severidade
+          law: response.data.leis[index % response.data.leis.length] || "Legislação aplicável",
+        })),
+        suggestions: response.data.sugestoes.map((sugestao, index) => ({
+          id: index + 1,
+          title: `Sugestão ${index + 1}`,
+          description: sugestao,
+          priority: index < 2 ? "high" : index < 4 ? "medium" : "low", // Distribuir prioridade
+        })),
+        laws: response.data.leis.map((lei, index) => ({
+          id: index + 1,
+          title: lei,
+          articles: [], // API não retorna artigos específicos
+          relevance: "Aplicável ao contrato analisado",
+        })),
       }
 
+      toast({
+        title: "✅ Análise concluída",
+        description: `Contrato "${file.name}" analisado com sucesso!`,
+      })
+
+      onAnalysisComplete(analysisData)
+      
+      // Atualizar estatísticas no dashboard
+      if (onStatsUpdate) {
+        console.log('📊 Atualizando estatísticas após nova análise...')
+        onStatsUpdate()
+      }
+    } catch (error: any) {
+      console.error('❌ Erro ao analisar contrato:', error)
+      
+      // Usar função utilitária para extrair erro específico de análise
+      const { title, message } = getAnalysisErrorMessage(error)
+      
+      toast({
+        variant: "destructive",
+        title,
+        description: message,
+        duration: 6000, // Mostrar por mais tempo para erros
+      })
+    } finally {
       setIsAnalyzing(false)
-      onAnalysisComplete(mockAnalysis)
-    }, 3000)
+    }
   }
 
   return (
@@ -140,7 +156,7 @@ export function UploadSection({ onAnalysisComplete }: UploadSectionProps) {
                 <p className="font-medium">{file.name}</p>
                 <p className="text-sm text-muted-foreground">{(file.size / 1024).toFixed(2)} KB</p>
               </div>
-              <Button variant="outline" onClick={() => setFile(null)}>
+              <Button variant="outline" onClick={() => setFile(null)} className="cursor-pointer hover:scale-105 transition-transform">
                 Remover arquivo
               </Button>
             </div>
@@ -158,16 +174,16 @@ export function UploadSection({ onAnalysisComplete }: UploadSectionProps) {
                 accept=".pdf,.doc,.docx"
                 onChange={handleFileChange}
               />
-              <Button variant="outline" onClick={() => document.getElementById("file-upload")?.click()}>
+              <Button variant="outline" onClick={() => document.getElementById("file-upload")?.click()} className="cursor-pointer hover:scale-105 transition-transform">
                 Selecionar Arquivo
               </Button>
-              <p className="text-xs text-muted-foreground">Formatos aceitos: PDF, DOC, DOCX (máx. 10MB)</p>
+              <p className="text-xs text-muted-foreground">Formatos aceitos: PDF, e DOCX (máx. 10MB)</p>
             </div>
           )}
         </div>
 
         {file && (
-          <Button className="w-full" size="lg" onClick={handleAnalyze} disabled={isAnalyzing}>
+          <Button className="w-full cursor-pointer hover:scale-105 transition-transform" size="lg" onClick={handleAnalyze} disabled={isAnalyzing}>
             {isAnalyzing ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />

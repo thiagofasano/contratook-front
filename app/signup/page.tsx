@@ -10,13 +10,19 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Shield, ArrowLeft } from "lucide-react"
+import { PublicRoute } from "@/components/protected-route"
+import api from "@/lib/axios"
+import { useToast } from "@/hooks/use-toast"
+import { add } from "date-fns"
 
 export default function SignupPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const { toast } = useToast()
   const [plan, setPlan] = useState<string>("free")
   const [formData, setFormData] = useState({
     email: "",
+    nome: "",
     password: "",
     confirmPassword: "",
     street: "",
@@ -24,8 +30,10 @@ export default function SignupPage() {
     city: "",
     state: "",
     zipCode: "",
+    country: ""
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const planParam = searchParams.get("plan")
@@ -37,9 +45,19 @@ export default function SignupPage() {
   const needsAddress = plan === "plus" || plan === "premium"
 
   const planDetails = {
-    free: { name: "Free", price: "R$ 0/mês" },
+    free: { name: "Grátis", price: "R$ 0/mês" },
     plus: { name: "Plus", price: "R$ 49/mês" },
     premium: { name: "Premium", price: "R$ 99/mês" },
+  }
+
+  // Função para mapear plano para planId
+  const getPlanId = (planName: string): number => {
+    const planIdMap: Record<string, number> = {
+      free: 5,
+      plus: 6,
+      premium: 7
+    }
+    return planIdMap[planName] || 5 // Default para free se não encontrar
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,53 +94,205 @@ export default function SignupPage() {
       if (!formData.city) newErrors.city = "Cidade é obrigatória"
       if (!formData.state) newErrors.state = "Estado é obrigatório"
       if (!formData.zipCode) newErrors.zipCode = "CEP é obrigatório"
+      if (!formData.country) newErrors.country = "País é obrigatório"
     }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (validateForm()) {
-      // In a real app, this would send data to an API
-      console.log("Form submitted:", { ...formData, plan })
-      // Redirect to dashboard after successful signup
-      router.push("/dashboard")
+      setIsLoading(true)
+      try {
+        const registrationData = {
+          name: formData.nome,
+          email: formData.email,
+          password: formData.password,
+          planId: getPlanId(plan),
+          address:  {
+            street: formData.street  || "",
+            number: formData.number || "",
+            city: formData.city || "",
+            state: formData.state || "",
+            zipCode: formData.zipCode || "",
+            country: formData.country || ""
+          } ,
+          
+        }
+
+        console.log('📤 Enviando dados de registro:', registrationData)
+
+        const response = await api.post('/auth/register', registrationData)
+
+        console.log('✅ Registro realizado com sucesso:', response.data)
+        
+        // Mostrar toast de sucesso
+        toast({
+          title: "🎉 Conta criada com sucesso!",
+          description: "Bem-vindo ao Contrato do Bem! Redirecionando para o login...",
+          duration: 3000,
+        })
+
+        // Aguardar um pouco para o usuário ver o toast antes de redirecionar
+        setTimeout(() => {
+          router.push('/login')
+        }, 1500)
+        
+      } catch (error: any) {
+        console.error('❌ Erro no registro:', error)
+        
+        // Tratar diferentes tipos de erro
+        if (error.response?.status === 400) {
+          // Erros de validação
+          if (error.response.data?.message?.includes('email')) {
+            setErrors({ email: 'Este e-mail já está em uso' })
+            toast({
+              title: "⚠️ E-mail já cadastrado",
+              description: "Este e-mail já possui uma conta. Que tal fazer login ou usar outro e-mail?",
+              variant: "destructive",
+              duration: 5000,
+            })
+          } else {
+            setErrors({ email: 'Dados inválidos. Verifique as informações.' })
+            toast({
+              title: "⚠️ Verifique os dados",
+              description: "Alguns campos precisam ser corrigidos. Confira e tente novamente.",
+              variant: "destructive",
+              duration: 5000,
+            })
+          }
+        } else if (error.response?.status === 409) {
+          setErrors({ email: 'E-mail já cadastrado' })
+          toast({
+            title: "⚠️ E-mail já cadastrado",
+            description: "Este e-mail já possui uma conta. Que tal fazer login para continuar?",
+            variant: "destructive",
+            duration: 5000,
+          })
+        } else {
+          setErrors({ email: 'Erro no servidor. Tente novamente.' })
+          toast({
+            title: "🔧 Problema no servidor",
+            description: "Algo deu errado do nosso lado. Aguarde um momento e tente novamente.",
+            variant: "destructive",
+            duration: 6000,
+          })
+        }
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
+  const handlePlanChange = (newPlan: string) => {
+    setPlan(newPlan)
+    // Update URL to reflect the new plan
+    const newUrl = new URL(window.location.href)
+    newUrl.searchParams.set("plan", newPlan)
+    window.history.replaceState({}, "", newUrl.toString())
+  }
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
-        {/* Back to home */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Voltar para home
+    <PublicRoute>
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-2xl">
+          {/* Back to home */}
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Voltar para home
         </Link>
 
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2 mb-2">
               <Shield className="h-6 w-6 text-primary" />
-              <span className="font-bold">ContractAI</span>
+              <span className="font-bold">Contrato Amigo</span>
             </div>
             <CardTitle className="text-2xl">Criar sua conta</CardTitle>
-            <CardDescription>
-              Plano selecionado:{" "}
-              <span className="font-semibold text-foreground">
-                {planDetails[plan as keyof typeof planDetails].name}
-              </span>{" "}
-              - {planDetails[plan as keyof typeof planDetails].price}
-            </CardDescription>
+            
+            {/* Plano Selecionado - Destacado */}
+            <div className="mt-4 p-4 bg-primary/10 border border-primary/20 rounded-lg">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-sm font-medium text-primary mb-1">Plano Selecionado</p>
+                  <p className="text-lg font-bold text-foreground">
+                    {planDetails[plan as keyof typeof planDetails].name}
+                  </p>
+                                {plan === "plus" && (
+                <p className="text-xs text-muted-foreground">✨ Recomendado para profissionais</p>
+              )}
+              {plan === "premium" && (
+                <p className="text-xs text-muted-foreground">🚀 Ideal para empresas</p>
+              )}
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-primary">
+                    {planDetails[plan as keyof typeof planDetails].price}
+                  </p>
+                  {plan !== "free" && (
+                    <p className="text-xs text-muted-foreground">por mês</p>
+                  )}
+                </div>
+              </div>
+              
+              {/* Seletor de Planos */}
+              <div className="flex gap-2 mb-3">
+                <Button
+                  type="button"
+                  variant={plan === "free" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handlePlanChange("free")}
+                  className="flex-1 cursor-pointer hover:scale-105 transition-transform"
+                >
+                  Grátis
+                </Button>
+                <Button
+                  type="button"
+                  variant={plan === "plus" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handlePlanChange("plus")}
+                  className="flex-1 cursor-pointer hover:scale-105 transition-transform"
+                >
+                  Plus
+                </Button>
+                <Button
+                  type="button"
+                  variant={plan === "premium" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handlePlanChange("premium")}
+                  className="flex-1 cursor-pointer hover:scale-105 transition-transform"
+                >
+                  Premium
+                </Button>
+              </div>
+
+
+            </div>
           </CardHeader>
 
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="nome">Nome Completo</Label>
+                <Input
+                  id="nome"
+                  name="nome"
+                  type="text"
+                  value={formData.nome}
+                  onChange={handleChange}
+                  className={errors.email ? "border-destructive" : ""}
+                  disabled={isLoading}
+                />
+                {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+              </div>
+
+
               {/* Email and Password */}
               <div className="space-y-2">
                 <Label htmlFor="email">E-mail</Label>
@@ -134,6 +304,7 @@ export default function SignupPage() {
                   value={formData.email}
                   onChange={handleChange}
                   className={errors.email ? "border-destructive" : ""}
+                  disabled={isLoading}
                 />
                 {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
               </div>
@@ -148,6 +319,7 @@ export default function SignupPage() {
                   value={formData.password}
                   onChange={handleChange}
                   className={errors.password ? "border-destructive" : ""}
+                  disabled={isLoading}
                 />
                 {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
               </div>
@@ -162,6 +334,7 @@ export default function SignupPage() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   className={errors.confirmPassword ? "border-destructive" : ""}
+                  disabled={isLoading}
                 />
                 {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
               </div>
@@ -242,18 +415,38 @@ export default function SignupPage() {
                     />
                     {errors.zipCode && <p className="text-sm text-destructive">{errors.zipCode}</p>}
                   </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="country">Country</Label>
+                    <Input
+                      id="country"
+                      name="country"
+                      placeholder="BR"
+                      value={formData.country}
+                      onChange={handleChange}
+                      className={errors.country ? "border-destructive" : ""}
+                    />
+                    {errors.country && <p className="text-sm text-destructive">{errors.country}</p>}
+                  </div>
                 </>
               )}
             </CardContent>
 
+            <br />
+
             <CardFooter className="flex flex-col gap-4">
-              <Button type="submit" className="w-full" size="lg">
-                Criar Conta
+              <Button 
+                type="submit" 
+                className="w-full cursor-pointer hover:scale-105 transition-transform" 
+                size="lg"
+                disabled={isLoading}
+              >
+                {isLoading ? "Criando conta..." : "Criar Conta"}
               </Button>
 
               <p className="text-sm text-muted-foreground text-center">
                 Já tem uma conta?{" "}
-                <Link href="/login" className="text-primary hover:underline">
+                <Link href="/login" className="text-primary hover:underline cursor-pointer">
                   Fazer login
                 </Link>
               </p>
@@ -262,5 +455,6 @@ export default function SignupPage() {
         </Card>
       </div>
     </div>
+    </PublicRoute>
   )
 }
