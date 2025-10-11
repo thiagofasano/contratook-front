@@ -82,7 +82,11 @@ export function getAnalysisErrorMessage(error: any): { title: string; message: s
   if (error.response?.status) {
     switch (error.response.status) {
       case 400:
+<<<<<<< HEAD
         return { title: "❌ Erro na requisição", message }
+=======
+        return { title: "❌ Arquivo inválido", message }
+>>>>>>> 158d9549918e91d3b8d87464b151d68b95a49069
       case 413:
         return { title: "❌ Arquivo muito grande", message }
       case 415:
