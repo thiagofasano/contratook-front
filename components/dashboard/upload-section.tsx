@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Upload, FileText, Loader2 } from "lucide-react"
@@ -25,6 +26,7 @@ interface UploadSectionProps {
 }
 
 export function UploadSection({ onAnalysisComplete, onStatsUpdate }: UploadSectionProps) {
+  const router = useRouter()
   const [file, setFile] = useState<File | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [dragActive, setDragActive] = useState(false)
@@ -121,6 +123,23 @@ export function UploadSection({ onAnalysisComplete, onStatsUpdate }: UploadSecti
       
       // Usar função utilitária para extrair erro específico de análise
       const { title, message } = getAnalysisErrorMessage(error)
+      
+      // Verificar se é erro de limite mensal atingido
+      if (message.includes("Limite mensal de análises atingido")) {
+        toast({
+          variant: "destructive",
+          title: "⚠️ Limite atingido",
+          description: "Você atingiu o limite do plano gratuito. Redirecionando para upgrade...",
+          duration: 3000,
+        })
+        
+        // Redirecionar após 2 segundos
+        setTimeout(() => {
+          router.push('/planos')
+        }, 2000)
+        
+        return
+      }
       
       toast({
         variant: "destructive",

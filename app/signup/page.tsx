@@ -2,8 +2,8 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,46 +16,25 @@ import { useToast } from "@/hooks/use-toast"
 import { add } from "date-fns"
 
 export default function SignupPage() {
-  const searchParams = useSearchParams()
   const router = useRouter()
   const { toast } = useToast()
-  const [plan, setPlan] = useState<string>("free")
+  const [plan] = useState<string>("free")
   const [formData, setFormData] = useState({
     email: "",
-    nome: "",
     password: "",
     confirmPassword: "",
-    street: "",
-    number: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: ""
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => {
-    const planParam = searchParams.get("plan")
-    if (planParam) {
-      setPlan(planParam.toLowerCase())
-    }
-  }, [searchParams])
-
-  const needsAddress = plan === "plus" || plan === "premium"
-
   const planDetails = {
     free: { name: "Grátis", price: "R$ 0/mês" },
-    plus: { name: "Plus", price: "R$ 49/mês" },
-    premium: { name: "Premium", price: "R$ 99/mês" },
   }
 
   // Função para mapear plano para planId
   const getPlanId = (planName: string): number => {
     const planIdMap: Record<string, number> = {
       free: 5,
-      plus: 6,
-      premium: 7
     }
     return planIdMap[planName] || 5 // Default para free se não encontrar
   }
@@ -88,15 +67,6 @@ export default function SignupPage() {
       newErrors.confirmPassword = "As senhas não coincidem"
     }
 
-    if (needsAddress) {
-      if (!formData.street) newErrors.street = "Rua é obrigatória"
-      if (!formData.number) newErrors.number = "Número é obrigatório"
-      if (!formData.city) newErrors.city = "Cidade é obrigatória"
-      if (!formData.state) newErrors.state = "Estado é obrigatório"
-      if (!formData.zipCode) newErrors.zipCode = "CEP é obrigatório"
-      if (!formData.country) newErrors.country = "País é obrigatório"
-    }
-
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -108,19 +78,10 @@ export default function SignupPage() {
       setIsLoading(true)
       try {
         const registrationData = {
-          name: formData.nome,
+          name: "", // String vazia conforme solicitado
           email: formData.email,
           password: formData.password,
           planId: getPlanId(plan),
-          address:  {
-            street: formData.street  || "",
-            number: formData.number || "",
-            city: formData.city || "",
-            state: formData.state || "",
-            zipCode: formData.zipCode || "",
-            country: formData.country || ""
-          } ,
-          
         }
 
         console.log('📤 Enviando dados de registro:', registrationData)
@@ -187,14 +148,6 @@ export default function SignupPage() {
     }
   }
 
-  const handlePlanChange = (newPlan: string) => {
-    setPlan(newPlan)
-    // Update URL to reflect the new plan
-    const newUrl = new URL(window.location.href)
-    newUrl.searchParams.set("plan", newPlan)
-    window.history.replaceState({}, "", newUrl.toString())
-  }
-
   return (
     <PublicRoute>
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -224,75 +177,18 @@ export default function SignupPage() {
                   <p className="text-lg font-bold text-foreground">
                     {planDetails[plan as keyof typeof planDetails].name}
                   </p>
-                                {plan === "plus" && (
-                <p className="text-xs text-muted-foreground">✨ Recomendado para profissionais</p>
-              )}
-              {plan === "premium" && (
-                <p className="text-xs text-muted-foreground">🚀 Ideal para empresas</p>
-              )}
                 </div>
                 <div className="text-right">
                   <p className="text-2xl font-bold text-primary">
                     {planDetails[plan as keyof typeof planDetails].price}
                   </p>
-                  {plan !== "free" && (
-                    <p className="text-xs text-muted-foreground">por mês</p>
-                  )}
                 </div>
               </div>
-              
-              {/* Seletor de Planos */}
-              <div className="flex gap-2 mb-3">
-                <Button
-                  type="button"
-                  variant={plan === "free" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handlePlanChange("free")}
-                  className="flex-1 cursor-pointer hover:scale-105 transition-transform"
-                >
-                  Grátis
-                </Button>
-                <Button
-                  type="button"
-                  variant={plan === "plus" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handlePlanChange("plus")}
-                  className="flex-1 cursor-pointer hover:scale-105 transition-transform"
-                >
-                  Plus
-                </Button>
-                <Button
-                  type="button"
-                  variant={plan === "premium" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handlePlanChange("premium")}
-                  className="flex-1 cursor-pointer hover:scale-105 transition-transform"
-                >
-                  Premium
-                </Button>
-              </div>
-
-
             </div>
           </CardHeader>
 
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="nome">Nome Completo</Label>
-                <Input
-                  id="nome"
-                  name="nome"
-                  type="text"
-                  value={formData.nome}
-                  onChange={handleChange}
-                  className={errors.email ? "border-destructive" : ""}
-                  disabled={isLoading}
-                />
-                {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-              </div>
-
-
               {/* Email and Password */}
               <div className="space-y-2">
                 <Label htmlFor="email">E-mail</Label>
@@ -338,98 +234,6 @@ export default function SignupPage() {
                 />
                 {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
               </div>
-
-              {/* Address fields for Plus and Premium */}
-              {needsAddress && (
-                <>
-                  <div className="pt-4 border-t border-border">
-                    <h3 className="font-semibold mb-4">Endereço de Cobrança</h3>
-                  </div>
-
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="street">Rua</Label>
-                      <Input
-                        id="street"
-                        name="street"
-                        placeholder="Nome da rua"
-                        value={formData.street}
-                        onChange={handleChange}
-                        className={errors.street ? "border-destructive" : ""}
-                      />
-                      {errors.street && <p className="text-sm text-destructive">{errors.street}</p>}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="number">Número</Label>
-                      <Input
-                        id="number"
-                        name="number"
-                        placeholder="123"
-                        value={formData.number}
-                        onChange={handleChange}
-                        className={errors.number ? "border-destructive" : ""}
-                      />
-                      {errors.number && <p className="text-sm text-destructive">{errors.number}</p>}
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="city">Cidade</Label>
-                      <Input
-                        id="city"
-                        name="city"
-                        placeholder="São Paulo"
-                        value={formData.city}
-                        onChange={handleChange}
-                        className={errors.city ? "border-destructive" : ""}
-                      />
-                      {errors.city && <p className="text-sm text-destructive">{errors.city}</p>}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="state">Estado</Label>
-                      <Input
-                        id="state"
-                        name="state"
-                        placeholder="SP"
-                        maxLength={2}
-                        value={formData.state}
-                        onChange={handleChange}
-                        className={errors.state ? "border-destructive" : ""}
-                      />
-                      {errors.state && <p className="text-sm text-destructive">{errors.state}</p>}
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="zipCode">CEP</Label>
-                    <Input
-                      id="zipCode"
-                      name="zipCode"
-                      placeholder="00000-000"
-                      value={formData.zipCode}
-                      onChange={handleChange}
-                      className={errors.zipCode ? "border-destructive" : ""}
-                    />
-                    {errors.zipCode && <p className="text-sm text-destructive">{errors.zipCode}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="country">Country</Label>
-                    <Input
-                      id="country"
-                      name="country"
-                      placeholder="BR"
-                      value={formData.country}
-                      onChange={handleChange}
-                      className={errors.country ? "border-destructive" : ""}
-                    />
-                    {errors.country && <p className="text-sm text-destructive">{errors.country}</p>}
-                  </div>
-                </>
-              )}
             </CardContent>
 
             <br />

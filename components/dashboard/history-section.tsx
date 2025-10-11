@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { FileText, Eye, Download, Trash2, Loader2, RefreshCw } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
+import { useIsMobile } from "@/hooks/use-mobile"
 import api from "@/lib/axios"
 import { getApiErrorMessage } from "@/lib/error-utils"
 
@@ -37,6 +38,7 @@ interface HistorySectionProps {
 }
 
 export function HistorySection({ onViewAnalysis, onStatsUpdate }: HistorySectionProps) {
+  const isMobile = useIsMobile()
   const [history, setHistory] = useState<AnalysisHistoryItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -298,8 +300,8 @@ export function HistorySection({ onViewAnalysis, onStatsUpdate }: HistorySection
               const abusiveClausesCount = countAbusiveClauses(item.abusiveClauses)
               
               return (
-                <div key={item.id} className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors">
-                  <div className="flex items-start gap-4 flex-1">
+                <div key={item.id} className={`p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors ${isMobile ? 'space-y-4' : 'flex items-center justify-between'}`}>
+                  <div className={`flex items-start gap-4 ${isMobile ? 'w-full' : 'flex-1'}`}>
                     <FileText className="h-10 w-10 text-primary shrink-0" />
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold truncate">{item.fileName}</h4>
@@ -329,28 +331,30 @@ export function HistorySection({ onViewAnalysis, onStatsUpdate }: HistorySection
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className={`flex items-center gap-2 ${isMobile ? 'justify-end w-full pt-2 border-t border-border' : ''}`}>
                     <Button 
                       variant="ghost" 
-                      size="icon" 
+                      size={isMobile ? "sm" : "icon"}
                       onClick={() => handleView(item)}
                       className="cursor-pointer hover:scale-105 transition-transform"
                       title="Visualizar análise"
                     >
                       <Eye className="h-4 w-4" />
+                      {isMobile && <span className="ml-2">Ver</span>}
                     </Button>
                     <Button 
                       variant="ghost" 
-                      size="icon" 
+                      size={isMobile ? "sm" : "icon"}
                       onClick={() => handleDownload(item)}
                       className="cursor-pointer hover:scale-105 transition-transform"
                       title="Baixar análise"
                     >
                       <Download className="h-4 w-4" />
+                      {isMobile && <span className="ml-2">Download</span>}
                     </Button>
                     <Button 
                       variant="ghost" 
-                      size="icon" 
+                      size={isMobile ? "sm" : "icon"}
                       onClick={() => handleDeleteClick(item.id)}
                       disabled={deletingIds.has(item.id)}
                       className="cursor-pointer hover:scale-105 transition-transform disabled:cursor-not-allowed disabled:opacity-50"
@@ -361,6 +365,7 @@ export function HistorySection({ onViewAnalysis, onStatsUpdate }: HistorySection
                       ) : (
                         <Trash2 className="h-4 w-4" />
                       )}
+                      {isMobile && !deletingIds.has(item.id) && <span className="ml-2">Excluir</span>}
                     </Button>
                   </div>
                 </div>
