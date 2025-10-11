@@ -47,7 +47,7 @@ export default function HomePage() {
         {/* Features Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
           <Card className="opacity-0 animate-[fadeInUp_0.8s_ease-out_1.0s_forwards]">
-            <CardHeader>
+            <CardHeader className="flex flex-col items-center text-center">
               <Shield className="h-10 w-10 text-black mb-2" />
               <CardTitle>Análise Inteligente</CardTitle>
             </CardHeader>
@@ -59,7 +59,7 @@ export default function HomePage() {
           </Card>
 
           <Card className="opacity-0 animate-[fadeInUp_0.8s_ease-out_1.2s_forwards]">
-            <CardHeader>
+            <CardHeader className="flex flex-col items-center text-center">
               <Sparkles className="h-10 w-10 text-black mb-2" />
               <CardTitle>Sugestões Personalizadas</CardTitle>
             </CardHeader>
@@ -69,7 +69,7 @@ export default function HomePage() {
           </Card>
 
           <Card className="opacity-0 animate-[fadeInUp_0.8s_ease-out_1.4s_forwards]">
-            <CardHeader>
+            <CardHeader className="flex flex-col items-center text-center">
               <FileText className="h-10 w-10 text-black mb-2" />
               <CardTitle>Referências Legais</CardTitle>
             </CardHeader>
@@ -79,7 +79,7 @@ export default function HomePage() {
           </Card>
 
           <Card className="opacity-0 animate-[fadeInUp_0.8s_ease-out_1.6s_forwards]">
-            <CardHeader>
+            <CardHeader className="flex flex-col items-center text-center">
               <Lock className="h-10 w-10 text-black mb-2" />
               <CardTitle>Processamento Seguro</CardTitle>
             </CardHeader>
