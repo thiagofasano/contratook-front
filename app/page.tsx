@@ -139,7 +139,7 @@ export default function HomePage() {
               <div className="flex justify-center lg:justify-end">
                 <div className="relative">
                   <Image
-                    src="/contract-analysis.png"
+                    src="/contract-analysis2.png"
                     alt="Análise de contrato com IA"
                     width={600}
                     height={400}
