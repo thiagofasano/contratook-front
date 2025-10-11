@@ -135,19 +135,22 @@ export default function HomePage() {
                 </p>
               </div>
 
-              {/* Image Side */}
+              {/* Video Side */}
               <div className="flex justify-center lg:justify-end">
                 <div className="relative">
-                  <Image
-                    src="/contract-analysis2.png"
-                    alt="Análise de contrato com IA"
-                    width={600}
-                    height={400}
-                    className="rounded-2xl shadow-2xl"
-                    priority
-                  />
+                  <div className="w-full max-w-[600px] h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] bg-white rounded-2xl shadow-2xl overflow-hidden">
+                    <video
+                      src="/contract-analysis.mp4"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      controls={false}
+                      className="w-full h-full object-cover scale-150"
+                    />
+                  </div>
                   {/* Floating badge */}
-                  <div className="absolute -top-4 -right-4 bg-green-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                  <div className="absolute -top-4 -right-4 bg-green-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold shadow-lg">
                     IA Avançada
                   </div>
                 </div>
