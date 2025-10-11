@@ -289,7 +289,7 @@ Nenhum contrato é armazenado ou utilizado para treinar modelos de IA — a aná
       {/* Footer */}
       <footer className="border-t border-border mt-20">
         <div className="container mx-auto px-4 py-8 text-center text-sm text-muted-foreground">
-          <p>© 2025 Contrato Ok. - Seu assistente de contratos impulsionado por IA.</p>
+          <p>© 2025 Contratook. - Seu assistente de contratos impulsionado por IA.</p>
         </div>
       </footer>
     </div>

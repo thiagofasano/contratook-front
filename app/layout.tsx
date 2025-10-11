@@ -7,8 +7,8 @@ import { Toaster } from '@/components/ui/toaster'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Contrato Ok',
-  description: 'Contrato Ok - Seu assistente de contratos impulsionado por IA',
+  title: 'Contratook',
+  description: 'Contratook - Seu assistente de contratos impulsionado por IA',
   generator: 'App',
 }
 

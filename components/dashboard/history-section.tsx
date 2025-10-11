@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { FileText, Eye, Download, Trash2, Loader2, RefreshCw } from "lucide-react"
+import { FileText, Eye, Download, Loader2, RefreshCw } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 import { useIsMobile } from "@/hooks/use-mobile"
 import api from "@/lib/axios"
@@ -42,11 +42,6 @@ export function HistorySection({ onViewAnalysis, onStatsUpdate }: HistorySection
   const [history, setHistory] = useState<AnalysisHistoryItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set())
-  
-  // Estados para o modal de confirmação de exclusão
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [analysisToDelete, setAnalysisToDelete] = useState<AnalysisHistoryItem | null>(null)
   
   // Estados para o modal de visualização de análise
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
@@ -194,70 +189,6 @@ export function HistorySection({ onViewAnalysis, onStatsUpdate }: HistorySection
     }
   }
 
-  const handleDeleteClick = (analysisId: number) => {
-    const analysis = history.find(item => item.id === analysisId)
-    if (analysis) {
-      setAnalysisToDelete(analysis)
-      setIsDeleteModalOpen(true)
-    }
-  }
-
-  const handleConfirmDelete = async () => {
-    if (!analysisToDelete) return
-
-    try {
-      // Adicionar ao conjunto de IDs sendo excluídos
-      setDeletingIds(prev => new Set(prev).add(analysisToDelete.id))
-
-      console.log('🗑️ Excluindo análise:', { id: analysisToDelete.id, guid: analysisToDelete.guid })
-
-      // Chamar endpoint de exclusão
-      await api.delete(`/analysis/${analysisToDelete.guid}`)
-
-      console.log('✅ Análise excluída com sucesso')
-
-      // Mostrar toast de sucesso
-      toast({
-        title: "✅ Análise excluída",
-        description: `Análise "${analysisToDelete.fileName}" foi excluída com sucesso.`,
-      })
-
-      // Atualizar a lista removendo o item excluído
-      setHistory(prev => prev.filter(item => item.id !== analysisToDelete.id))
-
-      // Atualizar estatísticas no dashboard
-      if (onStatsUpdate) {
-        console.log('📊 Atualizando estatísticas após exclusão...')
-        onStatsUpdate()
-      }
-
-      // Fechar modal
-      setIsDeleteModalOpen(false)
-      setAnalysisToDelete(null)
-
-    } catch (error: any) {
-      console.error('❌ Erro ao excluir análise:', error)
-      
-      const { title, message } = getApiErrorMessage(error)
-      
-      toast({
-        variant: "destructive",
-        title: title || "❌ Erro ao excluir análise",
-        description: message || "Não foi possível excluir a análise.",
-        duration: 5000,
-      })
-    } finally {
-      // Remover do conjunto de IDs sendo excluídos
-      if (analysisToDelete) {
-        setDeletingIds(prev => {
-          const newSet = new Set(prev)
-          newSet.delete(analysisToDelete.id)
-          return newSet
-        })
-      }
-    }
-  }
-
   return (
     <Card>
       <CardHeader>
@@ -318,11 +249,6 @@ export function HistorySection({ onViewAnalysis, onStatsUpdate }: HistorySection
                         <Badge variant={abusiveClausesCount > 0 ? "destructive" : "secondary"}>
                           {abusiveClausesCount} cláusula(s) abusiva(s)
                         </Badge>
-                        {item.summary && (
-                          <Badge variant="outline">
-                            Resumo disponível
-                          </Badge>
-                        )}
                       </div>
                       {item.summary && (
                         <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
@@ -351,21 +277,6 @@ export function HistorySection({ onViewAnalysis, onStatsUpdate }: HistorySection
                     >
                       <Download className="h-4 w-4" />
                       {isMobile && <span className="ml-2">Download</span>}
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size={isMobile ? "sm" : "icon"}
-                      onClick={() => handleDeleteClick(item.id)}
-                      disabled={deletingIds.has(item.id)}
-                      className="cursor-pointer hover:scale-105 transition-transform disabled:cursor-not-allowed disabled:opacity-50"
-                      title={deletingIds.has(item.id) ? "Excluindo análise..." : "Excluir análise"}
-                    >
-                      {deletingIds.has(item.id) ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                      {isMobile && !deletingIds.has(item.id) && <span className="ml-2">Excluir</span>}
                     </Button>
                   </div>
                 </div>
@@ -479,62 +390,6 @@ export function HistorySection({ onViewAnalysis, onStatsUpdate }: HistorySection
               Fechar
             </Button>
 
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal de Confirmação de Exclusão */}
-      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Confirmar Exclusão</DialogTitle>
-            <DialogDescription>
-              Tem certeza que deseja excluir esta análise? Esta ação não pode ser desfeita.
-            </DialogDescription>
-          </DialogHeader>
-          {analysisToDelete && (
-            <div className="py-4">
-              <div className="space-y-2">
-                <p className="font-medium">Arquivo: {analysisToDelete.fileName}</p>
-                <p className="text-sm text-muted-foreground">
-                  Criado em: {new Date(analysisToDelete.createdAt).toLocaleDateString("pt-BR", {
-                    day: "2-digit",
-                    month: "long",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setIsDeleteModalOpen(false)
-                setAnalysisToDelete(null)
-              }}
-            >
-              Cancelar
-            </Button>
-            <Button 
-              variant="destructive" 
-              onClick={handleConfirmDelete}
-              disabled={analysisToDelete ? deletingIds.has(analysisToDelete.id) : false}
-            >
-              {analysisToDelete && deletingIds.has(analysisToDelete.id) ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Excluindo...
-                </>
-              ) : (
-                <>
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Excluir
-                </>
-              )}
-            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

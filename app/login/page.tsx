@@ -94,7 +94,7 @@ export default function LoginPage() {
             <CardHeader>
               <div className="flex items-center gap-2 mb-2">
                 <Shield className="h-6 w-6 text-primary" />
-                <span className="font-bold">Contrato Ok</span>
+                <span className="font-bold">Contratook</span>
               </div>
               <CardTitle className="text-2xl">Bem-vindo de volta</CardTitle>
               <CardDescription>Entre com suas credenciais para acessar sua conta</CardDescription>

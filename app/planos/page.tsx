@@ -72,7 +72,7 @@ export default function PlanosPage() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shield className="h-8 w-8 text-black" />
-            <span className="text-xl font-bold">Contrato Amigo</span>
+            <span className="text-xl font-bold">Contratook</span>
           </div>
           <nav className="flex items-center gap-6">
             <Button asChild variant="ghost" className="cursor-pointer hover:scale-105 transition-transform">
@@ -256,7 +256,7 @@ Nenhum contrato é armazenado ou utilizado para treinar modelos de IA — a aná
       {/* Footer */}
       <footer className="border-t border-border">
         <div className="container mx-auto px-4 py-8 text-center text-sm text-muted-foreground">
-          <p>© 2025 Contrato Amigo. Todos os direitos reservados.</p>
+          <p>© 2025 Contratook. Todos os direitos reservados.</p>
         </div>
       </footer>
     </div>
