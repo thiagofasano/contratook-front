@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { FileText, Shield, Sparkles, Lock, Eye, Server, HelpCircle, CreditCard, Zap, Plus } from "lucide-react"
+import { EnvDebugger } from "@/components/env-debugger"
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
+      <EnvDebugger />
       {/* Header */}
       <header className="border-b border-border">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">

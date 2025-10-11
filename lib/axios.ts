@@ -1,5 +1,15 @@
 import axios from 'axios'
 
+// 🔍 Debug: Mostrar qual .env está sendo usado
+console.log('🔍 ENV DEBUG:', {
+  'NODE_ENV': process.env.NODE_ENV,
+  'NEXT_PUBLIC_ENV': process.env.NEXT_PUBLIC_ENV,
+  'NEXT_PUBLIC_API_URL': process.env.NEXT_PUBLIC_API_URL,
+  'Source': process.env.NEXT_PUBLIC_ENV === 'dev' ? '.env.local' : 
+           process.env.NEXT_PUBLIC_ENV === 'production' ? '.env.production' : 
+           'Vercel Environment Variables'
+})
+
 // Criar instância do Axios com configuração base
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
