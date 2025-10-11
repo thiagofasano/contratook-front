@@ -22,7 +22,7 @@ export default function HomePage() {
             </Link>
             </Button>
             <Button asChild className="cursor-pointer hover:scale-105 transition-transform">
-              <Link href="/signup">Começar</Link>
+              <Link href="/signup">Testar</Link>
             </Button>
           </nav>
         </div>
