@@ -62,7 +62,6 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shield className="h-8 w-8 text-black" />
-<<<<<<< HEAD
             <span className="text-xl font-bold">Contratook</span>
           </div>
           <nav className="flex items-center gap-6">
@@ -71,14 +70,6 @@ export default function HomePage() {
               Login
             </Link>
             </Button>
-=======
-            <span className="text-xl font-bold">Contrato Amigo</span>
-          </div>
-          <nav className="flex items-center gap-6">
-            <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Login
-            </Link>
->>>>>>> 158d9549918e91d3b8d87464b151d68b95a49069
             <Button asChild className="cursor-pointer hover:scale-105 transition-transform">
               <Link href="/signup">Começar</Link>
             </Button>
@@ -243,11 +234,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="border-t border-border mt-20">
         <div className="container mx-auto px-4 py-8 text-center text-sm text-muted-foreground">
-<<<<<<< HEAD
           <p>© 2025 Contrato Ok. - Seu assistente de contratos impulsionado por IA.</p>
-=======
-          <p>© 2025 Contrato Amigo. Todos os direitos reservados.</p>
->>>>>>> 158d9549918e91d3b8d87464b151d68b95a49069
         </div>
       </footer>
     </div>
