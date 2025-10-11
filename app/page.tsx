@@ -69,7 +69,7 @@ export default function HomePage() {
               Login
             </Link>
             <Button asChild className="cursor-pointer hover:scale-105 transition-transform">
-              <Link href="/signup">Começar Gratuitamente</Link>
+              <Link href="/signup">Começar</Link>
             </Button>
           </nav>
         </div>
