@@ -147,13 +147,6 @@ export default function HomePage() {
                       playsInline
                       controls={false}
                       preload="auto"
-                      onLoadedData={(e) => {
-                        // Força o play se não estiver reproduzindo
-                        const video = e.target as HTMLVideoElement;
-                        if (video.paused) {
-                          video.play().catch(console.log);
-                        }
-                      }}
                       className="w-full h-full object-cover scale-150"
                     />
                   </div>
