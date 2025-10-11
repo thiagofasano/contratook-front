@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,7 @@ import { ArrowLeft, CreditCard, FileText, User, MapPin, DollarSign } from "lucid
 import Link from "next/link"
 import { toast } from "sonner"
 
-export default function AssinaturaPage() {
+function AssinaturaForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user, isLoading } = useAuth()
@@ -360,5 +360,21 @@ export default function AssinaturaPage() {
         </div>
       </main>
     </div>
+  )
+}
+
+function AssinaturaPageLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    </div>
+  )
+}
+
+export default function AssinaturaPage() {
+  return (
+    <Suspense fallback={<AssinaturaPageLoading />}>
+      <AssinaturaForm />
+    </Suspense>
   )
 }
