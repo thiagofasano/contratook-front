@@ -28,7 +28,7 @@ function ConfirmEmailContent() {
         setStatus('loading')
         
         // Chamar endpoint de confirmação
-        const response = await api.post('/auth/confirm-email', {
+        const response = await api.put('/auth/confirm-register', {
           token: token
         })
 

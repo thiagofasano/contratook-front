@@ -93,7 +93,7 @@ export default function SignupPage() {
         // Mostrar toast de sucesso
         toast({
           title: "🎉 Conta criada com sucesso!",
-          description: "Bem-vindo ao Contrato do Bem! Redirecionando para o login...",
+          description: "Bem-vindo ao Contratook! Redirecionando para o login...",
           duration: 3000,
         })
 

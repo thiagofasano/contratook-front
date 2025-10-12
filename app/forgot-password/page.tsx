@@ -118,7 +118,7 @@ export default function ForgotPasswordPage() {
             <CardHeader>
               <div className="flex items-center gap-2 mb-2">
                 <Shield className="h-6 w-6 text-primary" />
-                <span className="font-bold">Contrato do Bem</span>
+                <span className="font-bold">Contratook</span>
               </div>
               <CardTitle className="text-2xl">
                 {emailSent ? "E-mail enviado!" : "Esqueceu sua senha?"}
