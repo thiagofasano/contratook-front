@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -17,19 +18,40 @@ import {
   TooltipProvider,
   TooltipTrigger 
 } from "@/components/ui/tooltip"
-import { Shield, User, Settings, LogOut, History, Bell, LayoutDashboard, CreditCard, TrendingUp } from "lucide-react"
+import { Shield, User, Settings, LogOut, History, Bell, LayoutDashboard, CreditCard, TrendingUp, RefreshCw } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { cn } from "@/lib/utils"
 
 export function DashboardHeader() {
   const router = useRouter()
   const pathname = usePathname()
-  const { user, logout } = useAuth()
+  const { user, logout, checkAuth } = useAuth()
 
   const handleLogout = () => {
     console.log('👋 Fazendo logout...')
     logout()
   }
+
+  const handleRefreshPlan = async () => {
+    console.log('🔄 Atualizando dados do plano...')
+    await checkAuth()
+  }
+
+  // Atualizar dados do usuário quando o componente é montado
+  // ou quando o usuário recarrega a página (F5)
+  useEffect(() => {
+    checkAuth()
+  }, [checkAuth])
+
+  // Atualizar dados quando a página ganha foco (usuário volta de outra aba)
+  useEffect(() => {
+    const handleFocus = () => {
+      checkAuth()
+    }
+
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [checkAuth])
 
   // Função para calcular a porcentagem de uso
   const getUsagePercentage = () => {
@@ -57,7 +79,7 @@ export function DashboardHeader() {
     if (percentage >= 100) return "Limite atingido"
     if (percentage >= 90) return "Quase no limite"
     if (percentage >= 70) return "Uso alto"
-    return `${percentage.toFixed(0)}% usado`
+    return "Normal"
   }
 
   // Mock temporário para testes - remover quando o endpoint estiver funcionando
@@ -171,65 +193,6 @@ export function DashboardHeader() {
         </div>
 
         <div className="flex items-center gap-4">
-          {/* Informações do Plano - Desktop */}
-          {currentUser?.plano && (
-            <Link 
-              href="/planos" 
-              className="hidden md:block cursor-pointer hover:scale-105 transition-transform"
-            >
-              <div className="text-sm bg-primary/10 border border-primary/20 rounded-lg px-4 py-3 hover:bg-primary/20 transition-colors min-w-[180px]">
-                <div className="flex items-center gap-2 mb-2">
-                  <CreditCard className="h-4 w-4 text-primary" />
-                  <p className="font-medium text-primary capitalize">{currentUser.plano}</p>
-                  {shouldShowLimitAlert() && (
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                      ⚠️
-                    </span>
-                  )}
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Uso do mês</span>
-                    <span>{currentUser.usadoMes || 0}/{currentUser.limiteMensal || 0}</span>
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full transition-all duration-300 ${getProgressColor()}`}
-                      style={{ width: `${getUsagePercentage()}%` }}
-                    />
-                  </div>
-                  <div className="text-xs text-center text-muted-foreground">
-                    {getPlanStatusText()}
-                  </div>
-                </div>
-              </div>
-            </Link>
-          )}
-
-          {/* Informações do Plano - Mobile */}
-          {currentUser?.plano && (
-            <Link 
-              href="/planos" 
-              className="md:hidden cursor-pointer hover:scale-105 transition-transform"
-            >
-              <div className="bg-primary/10 border border-primary/20 rounded-lg px-3 py-2 hover:bg-primary/20 transition-colors">
-                <div className="flex items-center gap-2 mb-1">
-                  <CreditCard className="h-3 w-3 text-primary" />
-                  <span className="text-xs font-medium text-primary capitalize">{currentUser.plano}</span>
-                </div>
-                <div className="text-xs text-muted-foreground mb-1">
-                  {currentUser.usadoMes || 0}/{currentUser.limiteMensal || 0}
-                </div>
-                <div className="w-full bg-muted rounded-full h-1">
-                  <div 
-                    className={`h-1 rounded-full transition-all duration-300 ${getProgressColor()}`}
-                    style={{ width: `${getUsagePercentage()}%` }}
-                  />
-                </div>
-              </div>
-            </Link>
-          )}
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full cursor-pointer hover:scale-105 transition-transform">
@@ -286,6 +249,10 @@ export function DashboardHeader() {
                   <CreditCard className="mr-2 h-4 w-4" />
                   Planos e Assinatura
                 </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleRefreshPlan}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Atualizar dados
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
