@@ -39,7 +39,7 @@ export function DashboardHeader() {
   // Função para calcular a porcentagem de uso
   const getUsagePercentage = () => {
     if (!currentUser?.limiteMensal || currentUser.limiteMensal === 0) return 0
-    return Math.min((currentUser.usadoMes || 0) / currentUser.limiteMensal * 100, 100)
+    return Math.min((currentUser.usadoNoMes || 0) / currentUser.limiteMensal * 100, 100)
   }
 
   // Função para determinar a cor da barra de progresso
