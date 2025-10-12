@@ -8,6 +8,9 @@ interface User {
   id: string
   email: string
   name?: string
+  plano?: string
+  limiteMensal?: number
+  usadoMes?: number
   // Adicione outros campos do usuário conforme necessário
 }
 
@@ -41,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Fazer uma chamada para verificar se o token ainda é válido
-      const response = await api.get('/user/me') // ou endpoint que retorna dados do usuário
+      const response = await api.get('/me') // endpoint que retorna dados do usuário incluindo plano
       
       if (response.data) {
         setUser(response.data)
