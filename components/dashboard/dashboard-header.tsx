@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -25,7 +25,8 @@ import { cn } from "@/lib/utils"
 export function DashboardHeader() {
   const router = useRouter()
   const pathname = usePathname()
-  const { user, logout, checkAuth } = useAuth()
+  const { user, logout, checkAuth, isLoading } = useAuth()
+  const isCheckingAuth = useRef(false)
 
   const handleLogout = () => {
     console.log('👋 Fazendo logout...')
@@ -33,25 +34,42 @@ export function DashboardHeader() {
   }
 
   const handleRefreshPlan = async () => {
+    if (isCheckingAuth.current || isLoading) return
+    
     console.log('🔄 Atualizando dados do plano...')
-    await checkAuth()
+    isCheckingAuth.current = true
+    try {
+      await checkAuth()
+    } finally {
+      isCheckingAuth.current = false
+    }
   }
 
   // Atualizar dados do usuário quando o componente é montado
   // ou quando o usuário recarrega a página (F5)
   useEffect(() => {
-    checkAuth()
-  }, [checkAuth])
+    if (!isCheckingAuth.current && !isLoading) {
+      isCheckingAuth.current = true
+      checkAuth().finally(() => {
+        isCheckingAuth.current = false
+      })
+    }
+  }, []) // Sem dependências para evitar loops
 
   // Atualizar dados quando a página ganha foco (usuário volta de outra aba)
   useEffect(() => {
     const handleFocus = () => {
-      checkAuth()
+      if (!isCheckingAuth.current && !isLoading) {
+        isCheckingAuth.current = true
+        checkAuth().finally(() => {
+          isCheckingAuth.current = false
+        })
+      }
     }
 
     window.addEventListener('focus', handleFocus)
     return () => window.removeEventListener('focus', handleFocus)
-  }, [checkAuth])
+  }, []) // Sem dependências para evitar loops
 
   // Função para calcular a porcentagem de uso
   const getUsagePercentage = () => {

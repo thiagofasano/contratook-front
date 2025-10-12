@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import api, { authUtils } from '@/lib/axios'
 
@@ -29,12 +29,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
+  const isCheckingRef = useRef(false)
 
   const isAuthenticated = !!user && authUtils.isAuthenticated()
 
   // Verificar se o token é válido fazendo uma chamada para a API
   const checkAuth = async () => {
+    // Evitar múltiplas chamadas simultâneas
+    if (isCheckingRef.current) {
+      console.log('⏳ CheckAuth já em andamento, ignorando...')
+      return
+    }
+
     try {
+      isCheckingRef.current = true
       setIsLoading(true)
       const token = authUtils.getToken()
       
@@ -57,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null)
     } finally {
       setIsLoading(false)
+      isCheckingRef.current = false
     }
   }
 
