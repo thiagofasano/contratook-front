@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react'
+import { createContext, useContext, useEffect, useState, ReactNode, useRef, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import api, { authUtils } from '@/lib/axios'
 
@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAuthenticated = !!user && authUtils.isAuthenticated()
 
   // Verificar se o token é válido fazendo uma chamada para a API
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     // Evitar múltiplas chamadas simultâneas
     if (isCheckingRef.current) {
       console.log('⏳ CheckAuth já em andamento, ignorando...')
@@ -67,10 +67,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false)
       isCheckingRef.current = false
     }
-  }
+  }, [])
 
   // Login function
-  const login = async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string) => {
     try {
       const response = await api.post('/auth/login', { email, password })
       
@@ -92,15 +92,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null)
       throw error
     }
-  }
+  }, [checkAuth])
 
   // Logout function
-  const logout = () => {
+  const logout = useCallback(() => {
     authUtils.removeToken()
     setUser(null)
     router.push('/login')
     console.log('👋 Logout realizado')
-  }
+  }, [router])
 
   // Verificar autenticação quando o componente carrega
   useEffect(() => {
@@ -112,9 +112,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const interceptor = api.interceptors.response.use(
       (response) => response,
       (error) => {
-        if (error.response?.status === 401 && isAuthenticated) {
+        if (error.response?.status === 401) {
           console.log('🚫 Token expirado, fazendo logout automático')
-          logout()
+          authUtils.removeToken()
+          setUser(null)
+          router.push('/login')
         }
         return Promise.reject(error)
       }
@@ -123,16 +125,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       api.interceptors.response.eject(interceptor)
     }
-  }, [isAuthenticated])
+  }, [router])
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     isLoading,
     isAuthenticated,
     login,
     logout,
     checkAuth,
-  }
+  }), [user, isLoading, isAuthenticated, login, logout, checkAuth])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
