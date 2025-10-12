@@ -165,7 +165,7 @@ export default function SignupPage() {
               <CardHeader>
                 <div className="flex items-center gap-2 mb-2">
                   <Shield className="h-6 w-6 text-primary" />
-                  <span className="font-bold">ContratoAmigo</span>
+                  <span className="font-bold">Contratook</span>
                 </div>
                 <CardTitle className="text-2xl">Criar sua conta</CardTitle>
                 
@@ -262,7 +262,7 @@ export default function SignupPage() {
               <CardHeader className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <Shield className="h-6 w-6 text-primary" />
-                  <span className="font-bold">ContratoAmigo</span>
+                  <span className="font-bold">Contratook</span>
                 </div>
                 <div className="flex justify-center mb-4">
                   <div className="h-16 w-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">

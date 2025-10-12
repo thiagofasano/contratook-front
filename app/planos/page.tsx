@@ -93,7 +93,7 @@ export default function PlanosPage() {
         </div>
 
         <h1 className="text-5xl md:text-6xl font-bold mb-6 text-balance">
-          Você atingiu o limite do plano?
+          Atingiu o limite do plano?
         </h1>
 
         <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty">
