@@ -10,7 +10,7 @@ interface User {
   name?: string
   plano?: string
   limiteMensal?: number
-  usadoMes?: number
+  usadoNoMes?: number
   // Adicione outros campos do usuário conforme necessário
 }
 

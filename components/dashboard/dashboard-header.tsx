@@ -200,7 +200,7 @@ export function DashboardHeader() {
                         <span className="font-medium text-primary capitalize">{currentUser.plano}</span>
                       </div>
                       <span className="text-muted-foreground">
-                        {currentUser.usadoMes || 0}/{currentUser.limiteMensal || 0}
+                        {currentUser.usadoNoMes || 0}/{currentUser.limiteMensal || 0}
                       </span>
                     </div>
                     <div className="space-y-1">
