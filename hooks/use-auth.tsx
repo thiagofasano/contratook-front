@@ -92,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null)
       throw error
     }
-  }, [checkAuth])
+  }, [])
 
   // Logout function
   const logout = useCallback(() => {
@@ -134,7 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     logout,
     checkAuth,
-  }), [user, isLoading, isAuthenticated, login, logout, checkAuth])
+  }), [user, isLoading, isAuthenticated, login, logout])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
