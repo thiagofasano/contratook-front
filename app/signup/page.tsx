@@ -6,10 +6,10 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Shield, ArrowLeft } from "lucide-react"
+import { Shield, ArrowLeft, Mail, CheckCircle } from "lucide-react"
 import { PublicRoute } from "@/components/protected-route"
 import api from "@/lib/axios"
 import { useToast } from "@/hooks/use-toast"
@@ -26,6 +26,7 @@ export default function SignupPage() {
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
+  const [isEmailSent, setIsEmailSent] = useState(false)
 
   const planDetails = {
     free: { name: "Grátis", price: "R$ 0/mês" },
@@ -90,17 +91,14 @@ export default function SignupPage() {
 
         console.log('✅ Registro realizado com sucesso:', response.data)
         
-        // Mostrar toast de sucesso
+        // Mostrar tela de confirmação de email
+        setIsEmailSent(true)
+        
         toast({
           title: "🎉 Conta criada com sucesso!",
-          description: "Bem-vindo ao Contratook! Redirecionando para o login...",
-          duration: 3000,
+          description: "Verifique seu e-mail para confirmar sua conta.",
+          duration: 5000,
         })
-
-        // Aguardar um pouco para o usuário ver o toast antes de redirecionar
-        setTimeout(() => {
-          router.push('/login')
-        }, 1500)
         
       } catch (error: any) {
         console.error('❌ Erro no registro:', error)
@@ -162,100 +160,184 @@ export default function SignupPage() {
         </Link>
 
         <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2 mb-2">
-              <Shield className="h-6 w-6 text-primary" />
-              <span className="font-bold">Contratook</span>
-            </div>
-            <CardTitle className="text-2xl">Criar sua conta</CardTitle>
-            
-            {/* Plano Selecionado - Destacado */}
-            <div className="mt-4 p-4 bg-primary/10 border border-primary/20 rounded-lg">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <p className="text-sm font-medium text-primary mb-1">Plano Selecionado</p>
-                  <p className="text-lg font-bold text-foreground">
-                    {planDetails[plan as keyof typeof planDetails].name}
-                  </p>
+          {!isEmailSent ? (
+            <>
+              <CardHeader>
+                <div className="flex items-center gap-2 mb-2">
+                  <Shield className="h-6 w-6 text-primary" />
+                  <span className="font-bold">ContratoAmigo</span>
                 </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-primary">
-                    {planDetails[plan as keyof typeof planDetails].price}
-                  </p>
+                <CardTitle className="text-2xl">Criar sua conta</CardTitle>
+                
+                {/* Plano Selecionado - Destacado */}
+                <div className="mt-4 p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="text-sm font-medium text-primary mb-1">Plano Selecionado</p>
+                      <p className="text-lg font-bold text-foreground">
+                        {planDetails[plan as keyof typeof planDetails].name}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-primary">
+                        {planDetails[plan as keyof typeof planDetails].price}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </CardHeader>
+              </CardHeader>
 
-          <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
-              {/* Email and Password */}
-              <div className="space-y-2">
-                <Label htmlFor="email">E-mail</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="seu@email.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={errors.email ? "border-destructive" : ""}
-                  disabled={isLoading}
-                />
-                {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-              </div>
+              <form onSubmit={handleSubmit}>
+                <CardContent className="space-y-4">
+                  {/* Email and Password */}
+                  <div className="space-y-2">
+                    <Label htmlFor="email">E-mail</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="seu@email.com"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className={errors.email ? "border-destructive" : ""}
+                      disabled={isLoading}
+                    />
+                    {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="Mínimo 6 caracteres"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={errors.password ? "border-destructive" : ""}
-                  disabled={isLoading}
-                />
-                {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Senha</Label>
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      placeholder="Mínimo 6 caracteres"
+                      value={formData.password}
+                      onChange={handleChange}
+                      className={errors.password ? "border-destructive" : ""}
+                      disabled={isLoading}
+                    />
+                    {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmar Senha</Label>
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  placeholder="Digite a senha novamente"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className={errors.confirmPassword ? "border-destructive" : ""}
-                  disabled={isLoading}
-                />
-                {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
-              </div>
-            </CardContent>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirmar Senha</Label>
+                    <Input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type="password"
+                      placeholder="Digite a senha novamente"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      className={errors.confirmPassword ? "border-destructive" : ""}
+                      disabled={isLoading}
+                    />
+                    {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
+                  </div>
+                </CardContent>
 
-            <br />
+                <br />
 
-            <CardFooter className="flex flex-col gap-4">
-              <Button 
-                type="submit" 
-                className="w-full cursor-pointer hover:scale-105 transition-transform" 
-                size="lg"
-                disabled={isLoading}
-              >
-                {isLoading ? "Criando conta..." : "Criar Conta"}
-              </Button>
+                <CardFooter className="flex flex-col gap-4">
+                  <Button 
+                    type="submit" 
+                    className="w-full cursor-pointer hover:scale-105 transition-transform" 
+                    size="lg"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Criando conta..." : "Criar Conta"}
+                  </Button>
 
-              <p className="text-sm text-muted-foreground text-center">
-                Já tem uma conta?{" "}
-                <Link href="/login" className="text-primary hover:underline cursor-pointer">
-                  Fazer login
-                </Link>
-              </p>
-            </CardFooter>
-          </form>
+                  <p className="text-sm text-muted-foreground text-center">
+                    Já tem uma conta?{" "}
+                    <Link href="/login" className="text-primary hover:underline cursor-pointer">
+                      Fazer login
+                    </Link>
+                  </p>
+                </CardFooter>
+              </form>
+            </>
+          ) : (
+            <>
+              <CardHeader className="text-center">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <Shield className="h-6 w-6 text-primary" />
+                  <span className="font-bold">ContratoAmigo</span>
+                </div>
+                <div className="flex justify-center mb-4">
+                  <div className="h-16 w-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                    <Mail className="h-8 w-8 text-green-600 dark:text-green-400" />
+                  </div>
+                </div>
+                <CardTitle className="text-2xl">Verifique seu e-mail</CardTitle>
+                <CardDescription className="text-center text-base">
+                  Enviamos um link de confirmação para
+                  <br />
+                  <span className="font-semibold text-foreground">{formData.email}</span>
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="space-y-6">
+                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                        Importante!
+                      </p>
+                      <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                        Você precisa confirmar seu e-mail antes de fazer login. Verifique sua caixa de entrada e clique no link de confirmação.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-center space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Não recebeu o e-mail? Verifique sua pasta de spam ou
+                  </p>
+                  
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      // Aqui você pode implementar reenvio do e-mail
+                      toast({
+                        title: "E-mail reenviado!",
+                        description: "Verifique sua caixa de entrada novamente.",
+                        duration: 3000,
+                      })
+                    }}
+                    className="w-full"
+                  >
+                    Reenviar e-mail de confirmação
+                  </Button>
+                </div>
+              </CardContent>
+
+              <CardFooter className="flex flex-col gap-4">
+                <div className="w-full text-center">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Já confirmou seu e-mail?
+                  </p>
+                  <Button 
+                    onClick={() => router.push('/login')}
+                    className="w-full" 
+                    variant="default"
+                  >
+                    Ir para o login
+                  </Button>
+                </div>
+                
+                <Button 
+                  onClick={() => setIsEmailSent(false)}
+                  variant="ghost" 
+                  className="w-full text-sm"
+                >
+                  ← Voltar ao cadastro
+                </Button>
+              </CardFooter>
+            </>
+          )}
         </Card>
       </div>
     </div>
