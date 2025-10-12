@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Upload, FileText, Loader2 } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
+import { useAuth } from "@/hooks/use-auth"
 import api from "@/lib/axios"
 import { getAnalysisErrorMessage } from "@/lib/error-utils"
 
@@ -27,6 +28,7 @@ interface UploadSectionProps {
 
 export function UploadSection({ onAnalysisComplete, onStatsUpdate }: UploadSectionProps) {
   const router = useRouter()
+  const { checkAuth } = useAuth()
   const [file, setFile] = useState<File | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [dragActive, setDragActive] = useState(false)
@@ -118,6 +120,10 @@ export function UploadSection({ onAnalysisComplete, onStatsUpdate }: UploadSecti
         console.log('📊 Atualizando estatísticas após nova análise...')
         onStatsUpdate()
       }
+
+      // Atualizar dados do usuário para refletir o novo uso mensal
+      console.log('🔄 Atualizando dados do usuário após análise...')
+      await checkAuth()
     } catch (error: any) {
       console.error('❌ Erro ao analisar contrato:', error)
       
