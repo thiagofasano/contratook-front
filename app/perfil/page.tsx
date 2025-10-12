@@ -65,7 +65,7 @@ export default function PerfilPage() {
   const fetchProfile = async () => {
     try {
       setIsLoading(true)
-      const response = await api.get('/users/me')
+      const response = await api.get('/user/me')
       
       if (response.data) {
         setProfile(response.data)
@@ -108,7 +108,7 @@ export default function PerfilPage() {
 
   const handleSaveProfile = async () => {
     try {
-      const response = await api.put('/users/me', formData)
+      const response = await api.put('/user/me', formData)
       
       if (response.data) {
         setProfile(response.data)

@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Fazer uma chamada para verificar se o token ainda é válido
-      const response = await api.get('users/me') // endpoint que retorna dados do usuário incluindo plano
+      const response = await api.get('user/me') // endpoint que retorna dados do usuário incluindo plano
       
       if (response.data) {
         setUser(response.data)
