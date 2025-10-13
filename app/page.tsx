@@ -17,7 +17,7 @@ export default function HomePage() {
               alt="Contratook"
               width={200}
               height={80}
-              className="h-8 w-auto"
+              className="h-8 w-auto md:h-8 h-6"
             />
           </div>
           <nav className="flex items-center gap-6">
