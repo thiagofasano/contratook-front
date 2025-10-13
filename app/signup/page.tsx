@@ -5,15 +5,17 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Shield, ArrowLeft, Mail, CheckCircle } from "lucide-react"
+import { Shield, ArrowLeft, Mail, CheckCircle,FileText, Sparkles, Lock, Server  } from "lucide-react"
 import { PublicRoute } from "@/components/protected-route"
 import api from "@/lib/axios"
 import { useToast } from "@/hooks/use-toast"
 import { add } from "date-fns"
+
 
 export default function SignupPage() {
   const router = useRouter()
@@ -148,24 +150,31 @@ export default function SignupPage() {
 
   return (
     <PublicRoute>
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="w-full max-w-2xl">
-          {/* Back to home */}
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Voltar para home
+      <div className="min-h-screen bg-background p-4">
+        {/* Back to home */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Voltar para home
         </Link>
 
-        <Card>
+        <div className="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto">
+          {/* Seção de Cadastro */}
+          <div className="flex-1 max-w-2xl flex flex-col justify-center min-h-[80vh]">
+            <Card className="w-full h-full flex flex-col justify-center">
           {!isEmailSent ? (
             <>
               <CardHeader>
                 <div className="flex items-center gap-2 mb-2">
-                  <Shield className="h-6 w-6 text-primary" />
-                  <span className="font-bold">Contratook</span>
+                  <Image
+                    src="/logo.png"
+                    alt="Contratook"
+                    width={160}
+                    height={60}
+                    className="h-6 w-auto"
+                  />
                 </div>
                 <CardTitle className="text-2xl">Criar sua conta</CardTitle>
                 
@@ -256,13 +265,19 @@ export default function SignupPage() {
                   </p>
                 </CardFooter>
               </form>
+
             </>
           ) : (
             <>
               <CardHeader className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-4">
-                  <Shield className="h-6 w-6 text-primary" />
-                  <span className="font-bold">Contratook</span>
+                  <Image
+                    src="/logo.png"
+                    alt="Contratook"
+                    width={120}
+                    height={40}
+                    className="h-6 w-auto"
+                  />
                 </div>
                 <div className="flex justify-center mb-4">
                   <div className="h-16 w-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
@@ -340,7 +355,81 @@ export default function SignupPage() {
           )}
         </Card>
       </div>
+
+      {/* Features Grid ao lado */}
+      <div className="flex-1 min-h-[80vh]">
+        <div className="h-full flex flex-col justify-center">
+
+          
+          <div className="space-y-6 flex-1 flex flex-col justify-center">
+            <Card className="opacity-0 animate-[fadeInUp_0.8s_ease-out_1.0s_forwards] w-full">
+              <CardHeader className="flex flex-row items-center gap-4">
+                <Shield className="h-10 w-10 text-black flex-shrink-0" />
+                <div className="flex-1">
+                  <CardTitle>Análise Inteligente</CardTitle>
+                  <p className="text-muted-foreground mt-2">
+                    IA avançada identifica cláusulas abusivas e pontos de atenção em segundos.
+                  </p>
+                </div>
+              </CardHeader>
+            </Card>
+
+            <Card className="opacity-0 animate-[fadeInUp_0.8s_ease-out_1.2s_forwards] w-full">
+              <CardHeader className="flex flex-row items-center gap-4">
+                <Sparkles className="h-10 w-10 text-black flex-shrink-0" />
+                <div className="flex-1">
+                  <CardTitle>Sugestões Personalizadas</CardTitle>
+                  <p className="text-muted-foreground mt-2">Receba recomendações específicas para melhorar seus contratos.</p>
+                </div>
+              </CardHeader>
+            </Card>
+
+            <Card className="opacity-0 animate-[fadeInUp_0.8s_ease-out_1.4s_forwards] w-full">
+              <CardHeader className="flex flex-row items-center gap-4">
+                <FileText className="h-10 w-10 text-black flex-shrink-0" />
+                <div className="flex-1">
+                  <CardTitle>Referências Legais</CardTitle>
+                  <p className="text-muted-foreground mt-2">Todas as análises incluem referências às leis aplicáveis.</p>
+                </div>
+              </CardHeader>
+            </Card>
+
+            <Card className="opacity-0 animate-[fadeInUp_0.8s_ease-out_1.6s_forwards] w-full">
+              <CardHeader className="flex flex-row items-center gap-4">
+                <Lock className="h-10 w-10 text-black flex-shrink-0" />
+                <div className="flex-1">
+                  <CardTitle>Processamento Seguro</CardTitle>
+                  <p className="text-muted-foreground mt-2">
+                    Os contratos são processados por meio de conexões criptografadas (HTTPS) e não ficam salvos em nossos servidores após a análise, garantindo privacidade total.
+                  </p>
+                </div>
+              </CardHeader>
+            </Card>
+
+                        <Card className="opacity-0 animate-[fadeInUp_0.8s_ease-out_1.6s_forwards] w-full">
+              <CardHeader className="flex flex-row items-center gap-4">
+                <Server className="h-12 w-12 text-black mb-6 mx-auto" />
+                <div className="flex-1">
+                  <CardTitle>Conformidade total com a LGPD</CardTitle>
+                  <p className="text-muted-foreground mt-2">
+                    Em conformidade com a Lei Geral de Proteção de Dados (LGPD), os documentos são usados exclusivamente para o propósito de análise contratual solicitada pelo usuário, não ficando armazenados.
+                  </p>
+                </div>
+              </CardHeader>
+            </Card>
+
+
+          </div>
+        </div>
+      </div>
     </div>
+
+
+ 
+
+    </div>
+
+    
     </PublicRoute>
   )
 }

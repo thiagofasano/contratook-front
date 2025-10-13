@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle, XCircle, Loader2, Mail, Shield } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import api from "@/lib/axios"
 
 function ConfirmEmailContent() {
@@ -98,8 +99,13 @@ function ConfirmEmailContent() {
         {/* Logo Header */}
         <div className="pt-6 pb-2 text-center border-b border-border">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Shield className="h-8 w-8 text-black" />
-            <span className="text-xl font-bold">Contratook</span>
+            <Image
+              src="/logo.png"
+              alt="Contratook"
+              width={120}
+              height={40}
+              className="h-8 w-auto"
+            />
           </div>
           <p className="text-sm text-muted-foreground">Confirmação de Email</p>
                   <br />

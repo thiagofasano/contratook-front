@@ -5,6 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -117,8 +118,13 @@ export default function ForgotPasswordPage() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2 mb-2">
-                <Shield className="h-6 w-6 text-primary" />
-                <span className="font-bold">Contratook</span>
+                <Image
+                  src="/logo.png"
+                  alt="Contratook"
+                  width={120}
+                  height={40}
+                  className="h-6 w-auto"
+                />
               </div>
               <CardTitle className="text-2xl">
                 {emailSent ? "E-mail enviado!" : "Esqueceu sua senha?"}

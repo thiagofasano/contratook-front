@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CheckCircle, XCircle, Loader2, Eye, EyeOff, Lock, Shield } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import api from "@/lib/axios"
 import { toast } from "sonner"
 
@@ -161,8 +162,13 @@ function ResetPassContent() {
         {/* Logo Header */}
         <div className="pt-6 pb-2 text-center border-b border-border">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Shield className="h-8 w-8 text-black" />
-            <span className="text-xl font-bold">Contratook</span>
+            <Image
+              src="/logo.png"
+              alt="Contratook"
+              width={120}
+              height={40}
+              className="h-8 w-auto"
+            />
           </div>
           <p className="text-sm text-muted-foreground">Redefinir Senha</p>
                   <br />

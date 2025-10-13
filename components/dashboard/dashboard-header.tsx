@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
@@ -125,8 +126,13 @@ export function DashboardHeader() {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <Shield className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold">Contratook</span>
+            <Image
+              src="/logo.png"
+              alt="Contratook"
+              width={120}
+              height={40}
+              className="h-8 w-auto"
+            />
           </Link>
 
           {/* Navigation Menu */}

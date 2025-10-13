@@ -3,7 +3,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { FileText, Shield, Sparkles, Lock, Eye, Server, HelpCircle, CreditCard, Zap, Plus } from "lucide-react"
+import { FileText, Shield, Sparkles, Lock, Eye, Server, HelpCircle, CreditCard, Zap, Plus, Mail } from "lucide-react"
 
 export default function HomePage() {
   return (
@@ -12,8 +12,13 @@ export default function HomePage() {
       <header className="border-b border-border">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className="h-8 w-8 text-black" />
-            <span className="text-xl font-bold">Contratook</span>
+            <Image
+              src="/logo.png"
+              alt="Contratook"
+              width={200}
+              height={80}
+              className="h-8 w-auto"
+            />
           </div>
           <nav className="flex items-center gap-6">
             <Button asChild className="cursor-pointer transition-transform bg-black hover:text-white hover:bg-gray hover:scale-105">
@@ -53,7 +58,7 @@ export default function HomePage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                IA avançada identifica cláusulas abusivas e pontos de atenção em segundos
+                IA avançada identifica cláusulas abusivas e pontos de atenção em segundos.
               </p>
             </CardContent>
           </Card>
@@ -64,7 +69,7 @@ export default function HomePage() {
               <CardTitle>Sugestões Personalizadas</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Receba recomendações específicas para melhorar seus contratos</p>
+              <p className="text-muted-foreground">Receba recomendações específicas para melhorar seus contratos.</p>
             </CardContent>
           </Card>
 
@@ -74,7 +79,7 @@ export default function HomePage() {
               <CardTitle>Referências Legais</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Todas as análises incluem referências às leis aplicáveis</p>
+              <p className="text-muted-foreground">Todas as análises incluem referências às leis aplicáveis.</p>
             </CardContent>
           </Card>
 
@@ -209,7 +214,7 @@ Nenhum contrato é armazenado ou utilizado para treinar modelos de IA — a aná
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Em conformidade com a Lei Geral de Proteção de Dados (LGPD), os documentos são usados exclusivamente para o propósito de análise contratual solicitada pelo usuário
+                  Em conformidade com a Lei Geral de Proteção de Dados (LGPD), os documentos são usados exclusivamente para o propósito de análise contratual solicitada pelo usuário, não ficando armazenados.
                 </p>
               </CardContent>
             </Card>
@@ -259,11 +264,11 @@ Nenhum contrato é armazenado ou utilizado para treinar modelos de IA — a aná
                 <AccordionTrigger className="text-left font-semibold text-lg hover:no-underline cursor-pointer">
                   <div className="flex items-center gap-3">
                     <Zap className="h-5 w-5 text-green-600 shrink-0" />
-                    Qual a diferença de usar esse serviço e o ChatGPT?
+                    Qual a diferença em usar o Contratook e o ChatGPT?
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground pt-2 pb-4 ml-8">
-                  <p>Muita. Vamos listar alguns dos nossos diferenciais =)</p>
+                  <p>Vamos listar alguns dos nossos diferenciais =)</p>
                   <br />
                   <ul>
                   <li>1) Diferente do ChatGPT, onde os documentos podem ser usados para aprimorar o modelo, em nosso sistema seus arquivos não são armazenados nem utilizados para nenhum tipo de treinamento. A análise ocorre de forma segura e temporária, garantindo total confidencialidade. </li>
@@ -278,7 +283,7 @@ Nenhum contrato é armazenado ou utilizado para treinar modelos de IA — a aná
                 <AccordionTrigger className="text-left font-semibold text-lg hover:no-underline cursor-pointer">
                   <div className="flex items-center gap-3">
                     <Plus className="h-5 w-5 text-green-600 shrink-0" />
-                    Além da análise de contratos, o serviço possui mais funcionalidades?
+                    Além da análise de contratos, o contratook possui mais funcionalidades?
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground pt-2 pb-4 ml-8">
@@ -290,10 +295,42 @@ Nenhum contrato é armazenado ou utilizado para treinar modelos de IA — a aná
         </div>
       </section>
 
+      {/* Contact Section */}
+      <section className="py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto">
+            <h2 className="text-4xl font-bold mb-4">Precisa de ajuda?</h2>
+            <p className="text-xl text-muted-foreground mb-8">
+              Entre em contato conosco! <br /> Nossa equipe está pronta para ajudar você com qualquer dúvida ou suporte técnico.
+            </p>
+            
+            <Card className="max-w-md mx-auto">
+              <CardHeader className="text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center">
+                    <Mail className="h-8 w-8 text-primary" />
+                  </div>
+                </div>
+                <CardDescription>Responderemos o mais rápido possível</CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <a 
+                  href="mailto:faleconosco@contratook.com.br"
+                  className="inline-flex items-center gap-2 text-lg font-semibold text-primary hover:text-primary/80 transition-colors"
+                >
+                  faleconosco@contratook.com.br
+                </a>
+              </CardContent>
+
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="border-t border-border mt-20">
+      <footer className="border-t border-border mt-0">
         <div className="container mx-auto px-4 py-8 text-center text-sm text-muted-foreground">
-          <p>© 2025 Contratook. - Seu assistente de contratos impulsionado por IA.</p>
+          <p>© 2025 Contratook - Seu assistente de contratos impulsionado por IA.</p>
         </div>
       </footer>
     </div>
