@@ -168,7 +168,7 @@ export default function HomePage() {
               className="h-6 md:h-8 w-auto"
             />
           </div>
-          <nav className="flex items-center gap-6">
+          <nav className="flex items-center gap-2">
             <Button asChild className="cursor-pointer transition-transform bg-black hover:text-white hover:bg-gray hover:scale-105">
             <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Login
