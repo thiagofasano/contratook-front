@@ -1,11 +1,159 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { FileText, Shield, Sparkles, Lock, Eye, Server, HelpCircle, CreditCard, Zap, Plus, Mail } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { FileText, Shield, Sparkles, Lock, Eye, Server, HelpCircle, CreditCard, Zap, Plus, Mail, Send } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import api from "@/lib/axios"
 
 export default function HomePage() {
+  const { toast } = useToast()
+  const [formData, setFormData] = useState({
+    nome: "",
+    email: "",
+    mensagem: ""
+  })
+  const [isLoading, setIsLoading] = useState(false)
+  const [captcha, setCaptcha] = useState({
+    question: "",
+    answer: "",
+    userAnswer: "",
+    correctAnswer: 0
+  })
+  const [isClient, setIsClient] = useState(false)
+
+  // Gerar pergunta de captcha simples
+  const generateCaptcha = () => {
+    const num1 = Math.floor(Math.random() * 10) + 1
+    const num2 = Math.floor(Math.random() * 10) + 1
+    const operations = ['+', '-', '*']
+    const operation = operations[Math.floor(Math.random() * operations.length)]
+    
+    let result = 0
+    let question = ""
+    
+    switch (operation) {
+      case '+':
+        result = num1 + num2
+        question = `${num1} + ${num2} = ?`
+        break
+      case '-':
+        const larger = Math.max(num1, num2)
+        const smaller = Math.min(num1, num2)
+        result = larger - smaller
+        question = `${larger} - ${smaller} = ?`
+        break
+      case '*':
+        result = num1 * num2
+        question = `${num1} × ${num2} = ?`
+        break
+    }
+    
+    setCaptcha({
+      question,
+      answer: "",
+      userAnswer: "",
+      correctAnswer: result
+    })
+  }
+
+  // Inicializar captcha quando componente carregar no cliente
+  useEffect(() => {
+    setIsClient(true)
+    generateCaptcha()
+  }, [])
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleCaptchaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCaptcha(prev => ({ ...prev, userAnswer: e.target.value }))
+  }
+
+  const validateForm = () => {
+    if (!formData.nome.trim()) {
+      toast({
+        title: "❌ Nome obrigatório",
+        description: "Por favor, informe seu nome.",
+        variant: "destructive"
+      })
+      return false
+    }
+
+    if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) {
+      toast({
+        title: "❌ E-mail inválido",
+        description: "Por favor, informe um e-mail válido.",
+        variant: "destructive"
+      })
+      return false
+    }
+
+    if (!formData.mensagem.trim()) {
+      toast({
+        title: "❌ Mensagem obrigatória",
+        description: "Por favor, escreva sua mensagem.",
+        variant: "destructive"
+      })
+      return false
+    }
+
+    if (parseInt(captcha.userAnswer) !== captcha.correctAnswer) {
+      toast({
+        title: "❌ Verificação incorreta",
+        description: "Por favor, resolva corretamente a operação matemática.",
+        variant: "destructive"
+      })
+      return false
+    }
+
+    return true
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!validateForm()) return
+
+    setIsLoading(true)
+    try {
+      await api.post('/faleConosco', {
+        nome: formData.nome,
+        email: formData.email,
+        mensagem: formData.mensagem
+      })
+
+      toast({
+        title: "✅ Mensagem enviada!",
+        description: "Recebemos sua mensagem e responderemos em breve.",
+        duration: 5000
+      })
+
+      // Limpar formulário
+      setFormData({ nome: "", email: "", mensagem: "" })
+      generateCaptcha()
+      
+    } catch (error) {
+      toast({
+        title: "❌ Erro ao enviar",
+        description: "Ocorreu um erro ao enviar sua mensagem. Tente novamente.",
+        variant: "destructive",
+        duration: 5000
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -27,7 +175,7 @@ export default function HomePage() {
             </Link>
             </Button>
             <Button asChild className="cursor-pointer hover:scale-105 transition-transform">
-              <Link href="/signup">Testar</Link>
+              <Link href="/signup">Testar Grátis</Link>
             </Button>
           </nav>
         </div>
@@ -298,30 +446,127 @@ Nenhum contrato é armazenado ou utilizado para treinar modelos de IA — a aná
       {/* Contact Section */}
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto">
             <h2 className="text-4xl font-bold mb-4">Precisa de ajuda?</h2>
             <p className="text-xl text-muted-foreground mb-8">
-              Entre em contato conosco! <br /> Nossa equipe está pronta para ajudar você com qualquer dúvida ou suporte técnico.
+              Entre em contato conosco! Nossa equipe está pronta para ajudar você com qualquer dúvida ou suporte técnico.
             </p>
             
-            <Card className="max-w-md mx-auto">
+            <Card className="max-w-2xl mx-auto">
               <CardHeader className="text-center">
                 <div className="flex justify-center mb-4">
                   <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center">
                     <Mail className="h-8 w-8 text-primary" />
                   </div>
                 </div>
+                <CardTitle>Envie sua mensagem</CardTitle>
                 <CardDescription>Responderemos o mais rápido possível</CardDescription>
               </CardHeader>
-              <CardContent className="text-center">
-                <a 
-                  href="mailto:faleconosco@contratook.com.br"
-                  className="inline-flex items-center gap-2 text-lg font-semibold text-primary hover:text-primary/80 transition-colors"
-                >
-                  faleconosco@contratook.com.br
-                </a>
-              </CardContent>
+              
+              <form onSubmit={handleSubmit}>
+                <CardContent className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="nome">Nome *</Label>
+                      <Input
+                        id="nome"
+                        name="nome"
+                        type="text"
+                        placeholder="Seu nome completo"
+                        value={formData.nome}
+                        onChange={handleInputChange}
+                        disabled={isLoading}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">E-mail *</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="seu@email.com"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        disabled={isLoading}
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="mensagem">Mensagem *</Label>
+                    <Textarea
+                      id="mensagem"
+                      name="mensagem"
+                      placeholder="Descreva sua dúvida ou solicitation..."
+                      rows={5}
+                      value={formData.mensagem}
+                      onChange={handleInputChange}
+                      disabled={isLoading}
+                      required
+                    />
+                  </div>
 
+                  {/* Validador humano */}
+                  <div className="space-y-2">
+                    <Label htmlFor="captcha">Verificação humana *</Label>
+                    <div className="flex items-center gap-4">
+                      <span className="text-lg font-semibold bg-muted px-4 py-2 rounded">
+                        {isClient ? captcha.question : "Carregando..."}
+                      </span>
+                      <Input
+                        id="captcha"
+                        type="number"
+                        placeholder="Resposta"
+                        value={captcha.userAnswer}
+                        onChange={handleCaptchaChange}
+                        disabled={isLoading || !isClient}
+                        className="w-24"
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={generateCaptcha}
+                        disabled={isLoading || !isClient}
+                      >
+                        Nova pergunta
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+
+                <br />
+
+                <CardFooter className="flex flex-col gap-4">
+                  <Button 
+                    type="submit" 
+                    className="w-full"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      "Enviando..."
+                    ) : (
+                      <>
+                        <Send className="mr-2 h-4 w-4" />
+                        Enviar Mensagem
+                      </>
+                    )}
+                  </Button>
+                  
+                  <p className="text-sm text-muted-foreground text-center">
+                    Ou envie um e-mail diretamente para:{" "}
+                    <a 
+                      href="mailto:faleconosco@contratook.com.br"
+                      className="text-primary hover:underline"
+                    >
+                      faleconosco@contratook.com.br
+                    </a>
+                  </p>
+                </CardFooter>
+              </form>
             </Card>
           </div>
         </div>
