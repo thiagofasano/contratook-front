@@ -37,9 +37,9 @@ export default function SignupPage() {
   // Função para mapear plano para planId
   const getPlanId = (planName: string): number => {
     const planIdMap: Record<string, number> = {
-      free: 5,
+      free: 1,
     }
-    return planIdMap[planName] || 5 // Default para free se não encontrar
+    return planIdMap[planName] || 1 // Default para free se não encontrar
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
