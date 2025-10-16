@@ -18,7 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger 
 } from "@/components/ui/tooltip"
-import { Shield, User, Settings, LogOut, History, Bell, LayoutDashboard, CreditCard, TrendingUp, RefreshCw } from "lucide-react"
+import { Shield, User, Settings, LogOut, History, Bell, LayoutDashboard, CreditCard, TrendingUp } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { cn } from "@/lib/utils"
 
@@ -30,11 +30,6 @@ export function DashboardHeader() {
   const handleLogout = () => {
     console.log('👋 Fazendo logout...')
     logout()
-  }
-
-  const handleRefreshPlan = async () => {
-    console.log('🔄 Atualizando dados do plano...')
-    await checkAuth()
   }
 
   // Função para calcular a porcentagem de uso
@@ -238,10 +233,6 @@ export function DashboardHeader() {
                   <CreditCard className="mr-2 h-4 w-4" />
                   Planos e Assinatura
                 </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleRefreshPlan}>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Atualizar dados
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>

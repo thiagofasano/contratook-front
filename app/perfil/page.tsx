@@ -36,7 +36,7 @@ export default function PerfilPage() {
   const { user, isLoading: authLoading } = useAuth()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState(true)
   const [formData, setFormData] = useState<UserProfile>({
     id: '',
     name: '',
@@ -112,7 +112,6 @@ export default function PerfilPage() {
       
       if (response.data) {
         setProfile(response.data)
-        setIsEditing(false)
         toast.success('Perfil atualizado com sucesso!')
       }
     } catch (error: any) {
@@ -168,11 +167,11 @@ export default function PerfilPage() {
               </div>
             </div>
             <Button 
-              onClick={() => isEditing ? handleSaveProfile() : setIsEditing(true)}
-              variant={isEditing ? "default" : "outline"}
+              onClick={() => handleSaveProfile()}
+              variant="default"
             >
               <Edit className="h-4 w-4 mr-2" />
-              {isEditing ? "Salvar" : "Editar"}
+              Salvar
             </Button>
           </div>
         </div>
@@ -353,50 +352,10 @@ export default function PerfilPage() {
                       Ver Planos
                     </Link>
                   </Button>
-                  {formData.plano && formData.plano !== 'Gratuito' && (
-                    <Button asChild className="w-full">
-                      <Link href="/historico">
-                        Ver Histórico
-                      </Link>
-                    </Button>
-                  )}
                 </div>
               </div>
             </CardContent>
           </Card>
-
-          {isEditing && (
-            <div className="flex justify-end gap-2">
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setIsEditing(false)
-                  if (profile) {
-                    setFormData({
-                      id: profile.id || '',
-                      name: profile.name || '',
-                      email: profile.email || '',
-                      cpfCnpj: profile.cpfCnpj || '',
-                      cep: profile.cep || '',
-                      estado: profile.estado || '',
-                      cidade: profile.cidade || '',
-                      bairro: profile.bairro || '',
-                      rua: profile.rua || '',
-                      numeroComplemento: profile.numeroComplemento || '',
-                      plano: profile.plano || 'Gratuito',
-                      planoAtivo: profile.planoAtivo || false,
-                      proximoVencimento: profile.proximoVencimento || ''
-                    })
-                  }
-                }}
-              >
-                Cancelar
-              </Button>
-              <Button onClick={handleSaveProfile}>
-                Salvar Alterações
-              </Button>
-            </div>
-          )}
         </div>
       </main>
     </div>
