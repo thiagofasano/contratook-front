@@ -80,7 +80,7 @@ function ResetPassContent() {
       setStatus('loading')
       
       // Chamar endpoint de reset de senha
-      const response = await api.post('/auth/resetPass', {
+      const response = await api.put('/auth/resetPass', {
         token: token,
         newPassword: formData.newPassword
       })
