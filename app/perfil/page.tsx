@@ -32,6 +32,15 @@ interface UserProfile {
   proximoVencimento?: string
 }
 
+interface UserAddress {
+  street: string
+  number: string
+  city: string
+  state: string
+  zipCode: string
+  country: string
+}
+
 export default function PerfilPage() {
   const router = useRouter()
   const { user, isLoading: authLoading } = useAuth()
@@ -62,6 +71,32 @@ export default function PerfilPage() {
     }
   }, [user, authLoading, router])
 
+  // Fetch user address
+  const fetchUserAddress = async () => {
+    try {
+      console.log('📍 Carregando dados de endereço...')
+      const response = await api.get('/user/address')
+      
+      if (response.data) {
+        console.log('✅ Dados de endereço carregados:', response.data)
+        
+        // Mapear os dados de endereço da API para o formato do formData
+        setFormData(prevFormData => ({
+          ...prevFormData,
+          rua: response.data.street || '',
+          numeroComplemento: response.data.number || '',
+          cidade: response.data.city || '',
+          estado: response.data.state || '',
+          cep: response.data.zipCode || '',
+        }))
+      }
+    } catch (error: any) {
+      console.error('❌ Erro ao carregar endereço:', error)
+      // Não mostra erro para o usuário se não conseguir carregar o endereço
+      // pois pode ser que o usuário ainda não tenha cadastrado
+    }
+  }
+
   // Fetch user profile
   const fetchProfile = async () => {
     try {
@@ -70,21 +105,16 @@ export default function PerfilPage() {
       
       if (response.data) {
         setProfile(response.data)
-        setFormData({
+        setFormData(prevFormData => ({
+          ...prevFormData,
           id: response.data.id || '',
           name: response.data.name || '',
           email: response.data.email || '',
           cpfCnpj: response.data.cpfCnpj || '',
-          cep: response.data.cep || '',
-          estado: response.data.estado || '',
-          cidade: response.data.cidade || '',
-          bairro: response.data.bairro || '',
-          rua: response.data.rua || '',
-          numeroComplemento: response.data.numeroComplemento || '',
           plano: response.data.plano || 'Gratuito',
           planoAtivo: response.data.planoAtivo || false,
           proximoVencimento: response.data.proximoVencimento || ''
-        })
+        }))
       }
     } catch (error: any) {
       console.error('Erro ao carregar perfil:', error)
@@ -97,7 +127,11 @@ export default function PerfilPage() {
 
   useEffect(() => {
     if (user) {
-      fetchProfile()
+      const loadUserData = async () => {
+        await fetchProfile()
+        await fetchUserAddress()
+      }
+      loadUserData()
     }
   }, [user])
 
@@ -191,13 +225,6 @@ export default function PerfilPage() {
                 <h1 className="text-2xl font-bold">Meu Perfil</h1>
               </div>
             </div>
-            <Button 
-              onClick={() => handleSaveProfile()}
-              variant="default"
-            >
-              <Edit className="h-4 w-4 mr-2" />
-              Salvar
-            </Button>
           </div>
         </div>
       </header>
@@ -224,6 +251,8 @@ export default function PerfilPage() {
                     id="name"
                     value={formData.name}
                     disabled
+                    className="bg-muted"
+
                   />
                 </div>
                 <div>
@@ -233,6 +262,8 @@ export default function PerfilPage() {
                     value={formData.cpfCnpj}
                     onChange={(e) => handleInputChange('cpfCnpj', e.target.value)}
                     disabled
+                    className="bg-muted"
+
                   />
                 </div>
               </div>
@@ -335,7 +366,6 @@ export default function PerfilPage() {
                   variant="outline"
                   className="flex items-center gap-2"
                 >
-                  <MapPin className="h-4 w-4" />
                   Atualizar Endereço
                 </Button>
               </div>
