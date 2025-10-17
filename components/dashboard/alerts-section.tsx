@@ -207,14 +207,6 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
     fetchContracts(true) // Depois recarregar contratos
   }
 
-  const handleDismiss = (id: number) => {
-    console.log("Dismissing alert:", id)
-    toast({
-      title: "🔕 Alerta dispensado",
-      description: "Funcionalidade de dispensar alertas será implementada em breve!",
-    })
-  }
-
   const handleViewContract = (contract: Contract) => {
     console.log("Viewing contract:", contract.title, contract.guid)
     toast({
@@ -540,24 +532,15 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button 
-            variant={isExpiring ? "outline" : "ghost"}
-            size="sm"
-            onClick={() => handleViewContract(contract)}
-            className="cursor-pointer hover:scale-105 transition-transform"
-          >
-            <FileText className="mr-2 h-4 w-4" />
-            Ver Contrato
-          </Button>
-          {isExpiring && (
+          {contract.fileUrl && (
             <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => handleDismiss(contract.id)}
+              variant={isExpiring ? "outline" : "ghost"}
+              size="sm"
+              onClick={() => handleViewContract(contract)}
               className="cursor-pointer hover:scale-105 transition-transform"
-              title="Dispensar alerta"
             >
-              <X className="h-4 w-4" />
+              <FileText className="mr-2 h-4 w-4" />
+              Ver Contrato
             </Button>
           )}
         </div>
@@ -807,7 +790,7 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
               onClick={handleOpenAlertModal}
               className="cursor-pointer hover:scale-105 transition-transform"
             >
-              Alterar
+              Configurar
             </Button>
           </div>
           </CardContent>
