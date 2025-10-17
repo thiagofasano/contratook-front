@@ -8,12 +8,35 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { ProtectedRoute } from "@/components/protected-route"
 import api from "@/lib/axios"
 
+// Interface para parametrização da API
+interface Parameterization {
+  alertContractTime: number
+  alertContractTimeRecipients: string[]
+}
+
 export default function AcompanhamentoPage() {
   const [contractsData, setContractsData] = useState({
     totalAtivos: 0,
     totalExpirandoEm30Dias: 0
   })
   const [isLoadingStats, setIsLoadingStats] = useState(true)
+  const [parameterization, setParameterization] = useState<Parameterization | null>(null)
+
+  // Buscar parametrização da API
+  const fetchParameterization = async () => {
+    try {
+      console.log('📋 Buscando parametrização...')
+
+      const response = await api.get<Parameterization>('/Parameterization/meParams')
+      
+      console.log('✅ Parametrização carregada:', response.data)
+      
+      setParameterization(response.data)
+      
+    } catch (error) {
+      console.error('❌ Erro ao carregar parametrização:', error)
+    }
+  }
 
   // Buscar estatísticas da API
   const fetchStats = async () => {
@@ -35,9 +58,14 @@ export default function AcompanhamentoPage() {
     }
   }
 
-  // Carregar estatísticas quando o componente montar
+  // Carregar parametrização e estatísticas quando o componente montar
   useEffect(() => {
-    fetchStats()
+    const loadInitialData = async () => {
+      await fetchParameterization() // Carregar parametrização primeiro
+      await fetchStats() // Depois carregar estatísticas
+    }
+    
+    loadInitialData()
   }, [])
 
   const stats = [
@@ -51,7 +79,9 @@ export default function AcompanhamentoPage() {
       title: "Próximos Vencimentos",
       value: isLoadingStats ? "..." : contractsData.totalExpirandoEm30Dias.toString(),
       icon: Bell,
-      description: "Nos próximos 30 dias",
+      description: parameterization 
+        ? `Vencem em ${parameterization.alertContractTime} dias ou menos` 
+        : "Vencem em 30 dias ou menos",
     },
   ]
 

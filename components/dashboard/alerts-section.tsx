@@ -35,6 +35,12 @@ interface Contract {
   guid: string
 }
 
+// Interface para parametrização da API
+interface Parameterization {
+  alertContractTime: number
+  alertContractTimeRecipients: string[]
+}
+
 interface AlertsSectionProps {
   onStatsUpdate?: () => Promise<void>
 }
@@ -46,7 +52,7 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
   
   // Estados para o modal de configuração de alerta
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false)
-  const [alertTime, setAlertTime] = useState(30) // Valor padrão: 30 dias
+  const [alertTime, setAlertTime] = useState(30) // Valor padrão inicial, será atualizado pela API
   const [tempAlertTime, setTempAlertTime] = useState(30) // Valor temporário no modal
   const [isSavingAlert, setIsSavingAlert] = useState(false)
 
@@ -55,6 +61,33 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
   const [emailRecipients, setEmailRecipients] = useState<string[]>([]) // E-mails atuais
   const [tempEmailText, setTempEmailText] = useState('') // Texto temporário no modal
   const [isSavingEmails, setIsSavingEmails] = useState(false)
+
+  // Estados para parametrização
+  const [parameterization, setParameterization] = useState<Parameterization | null>(null)
+
+  // Buscar parametrização da API
+  const fetchParameterization = async () => {
+    try {
+      console.log('📋 Buscando parametrização...')
+
+      const response = await api.get<Parameterization>('/Parameterization/meParams')
+      
+      console.log('✅ Parametrização carregada:', response.data)
+      
+      setParameterization(response.data)
+      
+      // Atualizar estados com valores da API
+      setAlertTime(response.data.alertContractTime)
+      setTempAlertTime(response.data.alertContractTime)
+      setEmailRecipients(response.data.alertContractTimeRecipients)
+      
+    } catch (error) {
+      console.error('❌ Erro ao carregar parametrização:', error)
+      
+      // Manter valores padrão em caso de erro
+      console.log('⚠️ Usando valores padrão para parametrização')
+    }
+  }
 
   // Estados para cadastro de novo contrato
   const [contractFile, setContractFile] = useState<File | null>(null)
@@ -107,14 +140,15 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
   // Filtrar contratos que estão expirando (baseado na configuração do usuário)
   const getExpiringContracts = (contractsList: Contract[] = contracts) => {
     const now = new Date()
-    const inAlertDays = new Date()
-    inAlertDays.setDate(now.getDate() + alertTime) // Usar o valor configurado
 
     return contractsList
       .filter(contract => contract.active) // Apenas contratos ativos
       .filter(contract => {
         const expirationDate = new Date(contract.expirationDate)
-        return expirationDate >= now && expirationDate <= inAlertDays
+        const daysUntilExpiration = Math.ceil((expirationDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+        
+        // Contrato entra no alerta se faltar X dias ou menos para vencer (mas ainda não venceu)
+        return daysUntilExpiration >= 0 && daysUntilExpiration <= alertTime
       })
       .sort((a, b) => new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime()) // Ordenar por data de expiração
   }
@@ -122,14 +156,15 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
   // Filtrar contratos que NÃO estão expirando (para exibir separadamente)
   const getOtherContracts = (contractsList: Contract[] = contracts) => {
     const now = new Date()
-    const inAlertDays = new Date()
-    inAlertDays.setDate(now.getDate() + alertTime)
 
     return contractsList
       .filter(contract => contract.active) // Apenas contratos ativos
       .filter(contract => {
         const expirationDate = new Date(contract.expirationDate)
-        return expirationDate > inAlertDays // Contratos que vencem depois do período de alerta
+        const daysUntilExpiration = Math.ceil((expirationDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+        
+        // Contratos que ainda não entraram no período de alerta (faltam mais que X dias)
+        return daysUntilExpiration > alertTime
       })
       .sort((a, b) => new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime()) // Ordenar por data de expiração
   }
@@ -157,13 +192,19 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
     return `Vence em ${daysLeft} dias`
   }
 
-  // Carregar contratos ao montar o componente
+  // Carregar contratos e parametrização ao montar o componente
   useEffect(() => {
-    fetchContracts()
+    const loadInitialData = async () => {
+      await fetchParameterization() // Carregar parametrização primeiro
+      await fetchContracts() // Depois carregar contratos
+    }
+    
+    loadInitialData()
   }, [])
 
-  const handleRefresh = () => {
-    fetchContracts(true)
+  const handleRefresh = async () => {
+    await fetchParameterization() // Recarregar parametrização
+    fetchContracts(true) // Depois recarregar contratos
   }
 
   const handleDismiss = (id: number) => {
@@ -220,7 +261,7 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
       
       toast({
         title: "✅ Configuração salva!",
-        description: `Alertas serão exibidos ${tempAlertTime} dias antes do vencimento.`,
+        description: `Contratos aparecerão nos alertas quando faltarem ${tempAlertTime} dias ou menos para vencer.`,
       })
 
       setIsAlertModalOpen(false)
@@ -556,7 +597,7 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
             </Button>
           </div>
           <CardDescription>
-            Contratos que estão próximos do vencimento (próximos {alertTime} dias)
+            Contratos que vencem em {alertTime} dias ou menos
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -600,7 +641,7 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
                 </div>
               </CollapsibleTrigger>
               <CardDescription>
-                Contratos cadastrados que não estão próximos do vencimento ({otherContracts.length} contrato{otherContracts.length !== 1 ? 's' : ''})
+                Contratos que vencem em mais de {alertTime} dias ({otherContracts.length} contrato{otherContracts.length !== 1 ? 's' : ''})
               </CardDescription>
             </CardHeader>
             <CollapsibleContent>
