@@ -208,11 +208,45 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
   }
 
   const handleViewContract = (contract: Contract) => {
-    console.log("Viewing contract:", contract.title, contract.guid)
-    toast({
-      title: "📄 Visualização de contrato",
-      description: "Funcionalidade de visualização será implementada em breve!",
-    })
+    if (!contract.fileUrl) {
+      toast({
+        title: "❌ Erro",
+        description: "URL do arquivo não encontrada para este contrato.",
+        variant: "destructive"
+      })
+      return
+    }
+
+    console.log("Downloading contract:", contract.title, contract.guid, contract.fileUrl)
+    
+    try {
+      // Criar um link temporário para download
+      const link = document.createElement('a')
+      link.href = contract.fileUrl
+      link.download = `contrato-${contract.title.replace(/[^a-zA-Z0-9]/g, '-')}` // Nome do arquivo sanitizado
+      link.target = '_blank' // Abrir em nova aba como fallback
+      
+      // Adicionar o link ao DOM temporariamente
+      document.body.appendChild(link)
+      
+      // Disparar o download
+      link.click()
+      
+      // Remover o link do DOM
+      document.body.removeChild(link)
+      
+      toast({
+        title: "📥 Download iniciado",
+        description: `Download do contrato "${contract.title}" foi iniciado.`,
+      })
+    } catch (error) {
+      console.error("Erro ao fazer download do contrato:", error)
+      toast({
+        title: "❌ Erro no download",
+        description: "Não foi possível fazer o download do contrato. Tente novamente.",
+        variant: "destructive"
+      })
+    }
   }
 
   // Funções para o modal de configuração de alerta
