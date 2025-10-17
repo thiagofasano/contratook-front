@@ -99,7 +99,6 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
   
   // Estados para os modais
   const [isContractRegistrationModalOpen, setIsContractRegistrationModalOpen] = useState(false)
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
 
   // Buscar contratos da API
   const fetchContracts = async (showRefreshIndicator = false) => {
@@ -660,6 +659,7 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
                 Contratos que vencem em mais de {alertTime} dias ({otherContracts.length} contrato{otherContracts.length !== 1 ? 's' : ''})
               </CardDescription>
             </CardHeader>
+            <br />
             <CollapsibleContent>
               <CardContent className="pt-0">
                 <div className="space-y-3">
@@ -708,15 +708,25 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
             Personalize quando você deseja receber notificações
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
           <Button
-            onClick={() => setIsSettingsModalOpen(true)}
+            onClick={handleOpenAlertModal}
+            className="w-full cursor-pointer hover:scale-105 transition-transform"
+            size="lg"
+            variant="outline"
+          >
+            <Bell className="mr-2 h-4 w-4" />
+            Configurar Tempo de Alerta
+          </Button>
+          
+          <Button
+            onClick={handleOpenEmailModal}
             className="w-full cursor-pointer hover:scale-105 transition-transform"
             size="lg"
             variant="outline"
           >
             <Settings className="mr-2 h-4 w-4" />
-            Abrir Configurações
+            Configurar Destinatários
           </Button>
         </CardContent>
       </Card>
@@ -954,63 +964,7 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Modal de Configurações de Alertas */}
-      <Dialog open={isSettingsModalOpen} onOpenChange={setIsSettingsModalOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Configurações de Alertas</DialogTitle>
-            <DialogDescription>
-              Personalize quando você deseja receber notificações
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-6 py-4">
-            {/* Alertas por E-mail */}
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div>
-                <p className="font-medium">Alertas por E-mail</p>
-                <p className="text-sm text-muted-foreground">
-                  {emailRecipients.length > 0 
-                    ? `${emailRecipients.length} e-mail(s) configurado(s)` 
-                    : 'Nenhum e-mail configurado'
-                  }
-                </p>
-              </div>
-              <Button 
-                variant="outline"
-                onClick={handleOpenEmailModal}
-                className="cursor-pointer hover:scale-105 transition-transform"
-              >
-                Configurar E-mails
-              </Button>
-            </div>
 
-            {/* Antecedência de Alerta */}
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div>
-                <p className="font-medium">Antecedência de Alerta</p>
-                <p className="text-sm text-muted-foreground">
-                  Atualmente: {alertTime} dias antes do vencimento
-                </p>
-              </div>
-              <Button 
-                variant="outline"
-                onClick={handleOpenAlertModal}
-                className="cursor-pointer hover:scale-105 transition-transform"
-              >
-                Configurar Tempo
-              </Button>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button 
-              onClick={() => setIsSettingsModalOpen(false)}
-              className="w-full"
-            >
-              Fechar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
