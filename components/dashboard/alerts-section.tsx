@@ -70,7 +70,7 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
     try {
       console.log('📋 Buscando parametrização...')
 
-      const response = await api.get<Parameterization>('/Parameterization/meParams')
+      const response = await api.get<Parameterization>('/Parameterization/me-params')
       
       console.log('✅ Parametrização carregada:', response.data)
       
