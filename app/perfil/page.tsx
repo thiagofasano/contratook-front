@@ -123,6 +123,29 @@ export default function PerfilPage() {
     }
   }
 
+  const handleUpdateAddress = async () => {
+    try {
+      const addressData = {
+        street: formData.rua || "",
+        number: formData.numeroComplemento || "",
+        city: formData.cidade || "",
+        state: formData.estado || "",
+        zipCode: formData.cep || "",
+        country: "Brasil"
+      }
+
+      console.log('📍 Atualizando endereço:', addressData)
+
+      await api.put('/user/address', addressData)
+      
+      toast.success('Endereço atualizado com sucesso!')
+    } catch (error: any) {
+      console.error('Erro ao atualizar endereço:', error)
+      const { message } = getApiErrorMessage(error)
+      toast.error(message || 'Erro ao atualizar endereço')
+    }
+  }
+
   const getPlanBadgeVariant = (plano: string) => {
     switch (plano?.toLowerCase()) {
       case 'plus':
@@ -166,7 +189,6 @@ export default function PerfilPage() {
               </Link>
               <div>
                 <h1 className="text-2xl font-bold">Meu Perfil</h1>
-                <p className="text-muted-foreground">Gerencie suas informações pessoais</p>
               </div>
             </div>
             <Button 
@@ -201,9 +223,7 @@ export default function PerfilPage() {
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    disabled={!isEditing}
-                    placeholder="Digite seu nome completo"
+                    disabled
                   />
                 </div>
                 <div>
@@ -212,8 +232,7 @@ export default function PerfilPage() {
                     id="cpfCnpj"
                     value={formData.cpfCnpj}
                     onChange={(e) => handleInputChange('cpfCnpj', e.target.value)}
-                    disabled={!isEditing}
-                    placeholder="000.000.000-00"
+                    disabled
                   />
                 </div>
               </div>
@@ -226,9 +245,6 @@ export default function PerfilPage() {
                   disabled
                   className="bg-muted"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  O e-mail não pode ser alterado
-                </p>
               </div>
             </CardContent>
           </Card>
@@ -308,8 +324,20 @@ export default function PerfilPage() {
                   value={formData.numeroComplemento}
                   onChange={(e) => handleInputChange('numeroComplemento', e.target.value)}
                   disabled={!isEditing}
-                  placeholder="123, Apto 45"
+                  placeholder="Complemento"
                 />
+              </div>
+              
+              {/* Botão para atualizar endereço */}
+              <div className="flex justify-end pt-4">
+                <Button 
+                  onClick={handleUpdateAddress}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <MapPin className="h-4 w-4" />
+                  Atualizar Endereço
+                </Button>
               </div>
             </CardContent>
           </Card>
