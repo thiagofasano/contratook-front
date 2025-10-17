@@ -342,8 +342,7 @@ export default function PerfilPage() {
               <div className="flex justify-end pt-4">
                 <Button 
                   onClick={handleUpdateAddress}
-                  variant="outline"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
                 >
                   Atualizar Endereço
                 </Button>

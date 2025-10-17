@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Shield, ArrowLeft, Mail, CheckCircle,FileText, Sparkles, Lock, Server, RefreshCw  } from "lucide-react"
 import { PublicRoute } from "@/components/protected-route"
 import api from "@/lib/axios"
@@ -26,6 +27,7 @@ export default function SignupPage() {
     email: "",
     password: "",
     confirmPassword: "",
+    acceptTerms: false,
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
@@ -45,8 +47,9 @@ export default function SignupPage() {
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    const { name, value, type, checked } = e.target
+    const fieldValue = type === 'checkbox' ? checked : value
+    setFormData((prev) => ({ ...prev, [name]: fieldValue }))
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }))
@@ -70,6 +73,10 @@ export default function SignupPage() {
 
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "As senhas não coincidem"
+    }
+
+    if (!formData.acceptTerms) {
+      newErrors.acceptTerms = "Você deve aceitar os termos de uso para continuar"
     }
 
     setErrors(newErrors)
@@ -271,16 +278,50 @@ export default function SignupPage() {
                     />
                     {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
                   </div>
-                </CardContent>
 
-                <br />
+                  {/* Termos de Uso */}
+                  <div className="space-y-2">
+                    <div className="flex items-start space-x-2">
+                      <Checkbox
+                        id="acceptTerms"
+                        name="acceptTerms"
+                        checked={formData.acceptTerms}
+                        onCheckedChange={(checked) => {
+                          setFormData((prev) => ({ ...prev, acceptTerms: checked as boolean }))
+                          if (errors.acceptTerms) {
+                            setErrors((prev) => ({ ...prev, acceptTerms: "" }))
+                          }
+                        }}
+                        disabled={isLoading}
+                        className={errors.acceptTerms ? "border-destructive" : ""}
+                      />
+                      <div className="grid gap-1.5 leading-none">
+                        <Label 
+                          htmlFor="acceptTerms"
+                          className="text-sm font-normal leading-relaxed cursor-pointer"
+                        >
+                          Li e aceito os{" "}
+                          <Link 
+                            href="/termos-de-uso" 
+                            target="_blank"
+                            className="text-primary hover:underline"
+                          >
+                            termos de uso
+                          </Link>{" "}
+                          do serviço
+                        </Label>
+                      </div>
+                    </div>
+                    {errors.acceptTerms && <p className="text-sm text-destructive ml-6">{errors.acceptTerms}</p>}
+                  </div>
+                </CardContent>
 
                 <CardFooter className="flex flex-col gap-4">
                   <Button 
                     type="submit" 
                     className="w-full cursor-pointer hover:scale-105 transition-transform" 
                     size="lg"
-                    disabled={isLoading}
+                    disabled={isLoading || !formData.acceptTerms}
                   >
                     {isLoading ? "Criando conta..." : "Criar Conta"}
                   </Button>
