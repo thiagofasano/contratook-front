@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+
 import {
   Collapsible,
   CollapsibleContent,
@@ -94,9 +95,11 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
   const [contractTitle, setContractTitle] = useState('')
   const [contractExpirationDate, setContractExpirationDate] = useState('')
   const [isCreatingContract, setIsCreatingContract] = useState(false)
-  const [isRegistrationExpanded, setIsRegistrationExpanded] = useState(false)
-  const [isSettingsExpanded, setIsSettingsExpanded] = useState(false)
   const [isOtherContractsExpanded, setIsOtherContractsExpanded] = useState(false)
+  
+  // Estados para os modais
+  const [isContractRegistrationModalOpen, setIsContractRegistrationModalOpen] = useState(false)
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
 
   // Buscar contratos da API
   const fetchContracts = async (showRefreshIndicator = false) => {
@@ -444,6 +447,9 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
       setContractTitle('')
       setContractExpirationDate('')
 
+      // Fechar modal
+      setIsContractRegistrationModalOpen(false)
+
       // Recarregar lista de contratos
       fetchContracts(true)
 
@@ -668,168 +674,51 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
       )}
 
       
-      {/* Cadastro de Novo Contrato */}
+      {/* Botão para Cadastrar Contrato */}
       <Card>
-        <Collapsible open={isRegistrationExpanded} onOpenChange={setIsRegistrationExpanded}>
-          <CardHeader>
-            <CollapsibleTrigger asChild>
-              <div className="flex items-center justify-between cursor-pointer hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors">
-                <div className="flex items-center gap-2">
-                  <CardTitle>Cadastrar Contrato para Acompanhamento</CardTitle>
-                </div>
-                <ChevronDown 
-                  className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${
-                    isRegistrationExpanded ? 'rotate-180' : ''
-                  }`} 
-                />
-              </div>
-            </CollapsibleTrigger>
-            <CardDescription>
-              Adicione um novo contrato para receber alertas de vencimento. O anexo do arquivo é opcional.
-            </CardDescription>
-          </CardHeader>
-          <CollapsibleContent>
-            <br /> 
-            <CardContent className="space-y-4 pt-0">
-            <div className="grid gap-4">
-            {/* Upload de Arquivo */}
-            <div className="space-y-2">
-              <Label htmlFor="contractFile">Arquivo do Contrato (Opcional)</Label>
-              <div className="flex items-center gap-4">
-                <Input
-                  id="contractFile"
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={handleFileChange}
-                  className="cursor-pointer"
-                />
-                {contractFile && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <FileText className="h-4 w-4" />
-                    <span>{contractFile.name}</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setContractFile(null)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Anexe o arquivo se desejar. Formatos aceitos: PDF, DOC, DOCX (máx. 10MB)
-              </p>
-            </div>
-
-            {/* Título */}
-            <div className="space-y-2">
-              <Label htmlFor="contractTitle">Título do Contrato</Label>
-              <Input
-                id="contractTitle"
-                type="text"
-                value={contractTitle}
-                onChange={(e) => setContractTitle(e.target.value)}
-                placeholder="Ex: Contrato de Prestação de Serviços"
-                className="w-full"
-              />
-            </div>
-
-            {/* Data de Expiração */}
-            <div className="space-y-2">
-              <Label htmlFor="contractExpirationDate">Data de Expiração</Label>
-              <Input
-                id="contractExpirationDate"
-                type="date"
-                value={contractExpirationDate}
-                onChange={(e) => setContractExpirationDate(e.target.value)}
-                className="w-full"
-              />
-              <p className="text-xs text-muted-foreground">
-                Data em que o contrato expira
-              </p>
-            </div>
-
-            {/* Botão de Cadastrar */}
-            <Button
-              onClick={handleCreateContract}
-              disabled={isCreatingContract}
-              className="w-full cursor-pointer hover:scale-105 transition-transform"
-              size="lg"
-            >
-              {isCreatingContract ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Cadastrando contrato...
-                </>
-              ) : (
-                <>
-                  Cadastrar Contrato
-                </>
-              )}
-            </Button>
-          </div>
-          </CardContent>
-          </CollapsibleContent>
-        </Collapsible>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Plus className="h-5 w-5" />
+            Cadastrar Contrato
+          </CardTitle>
+          <CardDescription>
+            Adicione um novo contrato para receber alertas de vencimento
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            onClick={() => setIsContractRegistrationModalOpen(true)}
+            className="w-full cursor-pointer hover:scale-105 transition-transform"
+            size="lg"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Cadastrar Novo Contrato
+          </Button>
+        </CardContent>
       </Card>
 
-      {/* Settings Card */}
+      {/* Botão para Configurações */}
       <Card>
-        <Collapsible open={isSettingsExpanded} onOpenChange={setIsSettingsExpanded}>
-          <CardHeader>
-            <CollapsibleTrigger asChild>
-              <div className="flex items-center justify-between cursor-pointer hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors">
-                <div className="flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
-                  <CardTitle>Configurações de Alertas</CardTitle>
-                </div>
-                <ChevronDown 
-                  className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${
-                    isSettingsExpanded ? 'rotate-180' : ''
-                  }`} 
-                />
-              </div>
-            </CollapsibleTrigger>
-            <CardDescription>Personalize quando você deseja receber notificações</CardDescription>
-          </CardHeader>
-          <CollapsibleContent>
-            <CardContent className="space-y-4 pt-0">
-              <br />
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Alertas por E-mail</p>
-              <p className="text-sm text-muted-foreground">
-                {emailRecipients.length > 0 
-                  ? `${emailRecipients.length} e-mail(s) configurado(s)` 
-                  : 'Nenhum e-mail configurado'
-                }
-              </p>
-            </div>
-            <Button 
-              variant="outline"
-              onClick={handleOpenEmailModal}
-              className="cursor-pointer hover:scale-105 transition-transform"
-            >
-              Configurar
-            </Button>
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Antecedência de Alerta</p>
-              <p className="text-sm text-muted-foreground">Atualmente: {alertTime} dias antes do vencimento</p>
-            </div>
-            <Button 
-              variant="outline"
-              onClick={handleOpenAlertModal}
-              className="cursor-pointer hover:scale-105 transition-transform"
-            >
-              Configurar
-            </Button>
-          </div>
-          </CardContent>
-          </CollapsibleContent>
-        </Collapsible>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="h-5 w-5" />
+            Configurações de Alertas
+          </CardTitle>
+          <CardDescription>
+            Personalize quando você deseja receber notificações
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            onClick={() => setIsSettingsModalOpen(true)}
+            className="w-full cursor-pointer hover:scale-105 transition-transform"
+            size="lg"
+            variant="outline"
+          >
+            <Settings className="mr-2 h-4 w-4" />
+            Abrir Configurações
+          </Button>
+        </CardContent>
       </Card>
 
 
@@ -963,6 +852,161 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
               ) : (
                 "Salvar E-mails"
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Cadastro de Contrato */}
+      <Dialog open={isContractRegistrationModalOpen} onOpenChange={setIsContractRegistrationModalOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Cadastrar Novo Contrato</DialogTitle>
+            <DialogDescription>
+              Adicione um novo contrato para receber alertas de vencimento. O anexo do arquivo é opcional.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {/* Upload de Arquivo */}
+            <div className="space-y-2">
+              <Label htmlFor="contractFile">Arquivo do Contrato (Opcional)</Label>
+              <div className="flex items-center gap-4">
+                <Input
+                  id="contractFile"
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={handleFileChange}
+                  className="cursor-pointer"
+                />
+                {contractFile && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <FileText className="h-4 w-4" />
+                    <span>{contractFile.name}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setContractFile(null)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Anexe o arquivo se desejar. Formatos aceitos: PDF, DOC, DOCX (máx. 10MB)
+              </p>
+            </div>
+
+            {/* Título */}
+            <div className="space-y-2">
+              <Label htmlFor="contractTitle">Título do Contrato</Label>
+              <Input
+                id="contractTitle"
+                type="text"
+                value={contractTitle}
+                onChange={(e) => setContractTitle(e.target.value)}
+                placeholder="Ex: Contrato de Prestação de Serviços"
+                className="w-full"
+              />
+            </div>
+
+            {/* Data de Expiração */}
+            <div className="space-y-2">
+              <Label htmlFor="contractExpirationDate">Data de Expiração</Label>
+              <Input
+                id="contractExpirationDate"
+                type="date"
+                value={contractExpirationDate}
+                onChange={(e) => setContractExpirationDate(e.target.value)}
+                className="w-full"
+              />
+              <p className="text-xs text-muted-foreground">
+                Data em que o contrato expira
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsContractRegistrationModalOpen(false)}
+              disabled={isCreatingContract}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleCreateContract}
+              disabled={isCreatingContract}
+              className="cursor-pointer hover:scale-105 transition-transform"
+            >
+              {isCreatingContract ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Cadastrando...
+                </>
+              ) : (
+                <>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Cadastrar Contrato
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Configurações de Alertas */}
+      <Dialog open={isSettingsModalOpen} onOpenChange={setIsSettingsModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Configurações de Alertas</DialogTitle>
+            <DialogDescription>
+              Personalize quando você deseja receber notificações
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {/* Alertas por E-mail */}
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div>
+                <p className="font-medium">Alertas por E-mail</p>
+                <p className="text-sm text-muted-foreground">
+                  {emailRecipients.length > 0 
+                    ? `${emailRecipients.length} e-mail(s) configurado(s)` 
+                    : 'Nenhum e-mail configurado'
+                  }
+                </p>
+              </div>
+              <Button 
+                variant="outline"
+                onClick={handleOpenEmailModal}
+                className="cursor-pointer hover:scale-105 transition-transform"
+              >
+                Configurar E-mails
+              </Button>
+            </div>
+
+            {/* Antecedência de Alerta */}
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div>
+                <p className="font-medium">Antecedência de Alerta</p>
+                <p className="text-sm text-muted-foreground">
+                  Atualmente: {alertTime} dias antes do vencimento
+                </p>
+              </div>
+              <Button 
+                variant="outline"
+                onClick={handleOpenAlertModal}
+                className="cursor-pointer hover:scale-105 transition-transform"
+              >
+                Configurar Tempo
+              </Button>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              onClick={() => setIsSettingsModalOpen(false)}
+              className="w-full"
+            >
+              Fechar
             </Button>
           </DialogFooter>
         </DialogContent>
