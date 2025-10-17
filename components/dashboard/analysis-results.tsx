@@ -33,7 +33,7 @@ export function AnalysisResults({ analysis }: AnalysisResultsProps) {
       setIsDownloading(true)
       
       // Verificar se temos o GUID da análise
-      if (!analysis.AnalysisGuid) {
+      if (!analysis.analysisGuid) {
         toast({
           variant: "destructive",
           title: "❌ Erro no download",
@@ -42,10 +42,10 @@ export function AnalysisResults({ analysis }: AnalysisResultsProps) {
         return
       }
 
-      console.log('📥 Iniciando download da análise:', { id: analysis.id, guid: analysis.AnalysisGuid })
+      console.log('📥 Iniciando download da análise:', { id: analysis.id, guid: analysis.analysisGuid })
 
       // Chamar endpoint de download
-      const response = await api.get(`/analysis/${analysis.AnalysisGuid}/download`, {
+      const response = await api.get(`/analysis/${analysis.analysisGuid}/download`, {
         responseType: 'blob',
       })
 
