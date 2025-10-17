@@ -92,7 +92,7 @@ export default function PlanosPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 text-center">
+      <section className="container mx-auto px-4 py-10 text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 text-orange-600 text-sm mb-6">
           <Shield className="h-4 w-4" />
           <span>Upgrade do plano</span>
@@ -110,7 +110,7 @@ export default function PlanosPage() {
 
       
       {/* Benefits Section */}
-      <section className="bg-muted/50 py-5">
+      <section className="bg-muted/50 py-10">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Por que fazer upgrade?</h2>
