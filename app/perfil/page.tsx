@@ -71,32 +71,6 @@ export default function PerfilPage() {
     }
   }, [user, authLoading, router])
 
-  // Fetch user address
-  const fetchUserAddress = async () => {
-    try {
-      console.log('📍 Carregando dados de endereço...')
-      const response = await api.get('/user/address')
-      
-      if (response.data) {
-        console.log('✅ Dados de endereço carregados:', response.data)
-        
-        // Mapear os dados de endereço da API para o formato do formData
-        setFormData(prevFormData => ({
-          ...prevFormData,
-          rua: response.data.street || '',
-          numeroComplemento: response.data.number || '',
-          cidade: response.data.city || '',
-          estado: response.data.state || '',
-          cep: response.data.zipCode || '',
-        }))
-      }
-    } catch (error: any) {
-      console.error('❌ Erro ao carregar endereço:', error)
-      // Não mostra erro para o usuário se não conseguir carregar o endereço
-      // pois pode ser que o usuário ainda não tenha cadastrado
-    }
-  }
-
   // Fetch user profile
   const fetchProfile = async () => {
     try {
@@ -105,12 +79,21 @@ export default function PerfilPage() {
       
       if (response.data) {
         setProfile(response.data)
+        
+        console.log('📍 Dados do usuário carregados:', response.data)
+        
         setFormData(prevFormData => ({
           ...prevFormData,
           id: response.data.id || '',
           name: response.data.name || '',
           email: response.data.email || '',
           cpfCnpj: response.data.cpfCnpj || '',
+          // Mapear dados de endereço se existirem
+          rua: response.data.address?.street || '',
+          numeroComplemento: response.data.address?.number || '',
+          cidade: response.data.address?.city || '',
+          estado: response.data.address?.state || '',
+          cep: response.data.address?.zipCode || '',
           plano: response.data.plano || 'Gratuito',
           planoAtivo: response.data.planoAtivo || false,
           proximoVencimento: response.data.proximoVencimento || ''
@@ -127,11 +110,7 @@ export default function PerfilPage() {
 
   useEffect(() => {
     if (user) {
-      const loadUserData = async () => {
-        await fetchProfile()
-        await fetchUserAddress()
-      }
-      loadUserData()
+      fetchProfile()
     }
   }, [user])
 
