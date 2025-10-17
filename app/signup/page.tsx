@@ -14,6 +14,7 @@ import { Shield, ArrowLeft, Mail, CheckCircle,FileText, Sparkles, Lock, Server  
 import { PublicRoute } from "@/components/protected-route"
 import api from "@/lib/axios"
 import { useToast } from "@/hooks/use-toast"
+import { getApiErrorMessage } from "@/lib/error-utils"
 import { add } from "date-fns"
 
 
@@ -105,39 +106,32 @@ export default function SignupPage() {
       } catch (error: any) {
         console.error('❌ Erro no registro:', error)
         
+        // Usar função utilitária para extrair mensagem de erro
+        const { title, message } = getApiErrorMessage(error)
+        
         // Tratar diferentes tipos de erro
         if (error.response?.status === 400) {
           // Erros de validação
-          if (error.response.data?.message?.includes('email')) {
-            setErrors({ email: 'Este e-mail já está em uso' })
-            toast({
-              title: "⚠️ E-mail já cadastrado",
-              description: "Este e-mail já possui uma conta. Que tal fazer login ou usar outro e-mail?",
-              variant: "destructive",
-              duration: 5000,
-            })
-          } else {
-            setErrors({ email: 'Dados inválidos. Verifique as informações.' })
-            toast({
-              title: "⚠️ Verifique os dados",
-              description: "Alguns campos precisam ser corrigidos. Confira e tente novamente.",
-              variant: "destructive",
-              duration: 5000,
-            })
-          }
-        } else if (error.response?.status === 409) {
-          setErrors({ email: 'E-mail já cadastrado' })
+          setErrors({ email: message })
           toast({
-            title: "⚠️ E-mail já cadastrado",
-            description: "Este e-mail já possui uma conta. Que tal fazer login para continuar?",
+            title: title,
+            description: message,
+            variant: "destructive",
+            duration: 5000,
+          })
+        } else if (error.response?.status === 409) {
+          setErrors({ email: message })
+          toast({
+            title: title,
+            description: message,
             variant: "destructive",
             duration: 5000,
           })
         } else {
-          setErrors({ email: 'Erro no servidor. Tente novamente.' })
+          setErrors({ email: message })
           toast({
-            title: "🔧 Problema no servidor",
-            description: "Algo deu errado do nosso lado. Aguarde um momento e tente novamente.",
+            title: title,
+            description: message,
             variant: "destructive",
             duration: 6000,
           })

@@ -12,6 +12,7 @@ import { ArrowLeft, User, Mail, MapPin, CreditCard, Loader2, Edit } from "lucide
 import Link from "next/link"
 import { toast } from "sonner"
 import api from "@/lib/axios"
+import { getApiErrorMessage } from "@/lib/error-utils"
 
 interface UserProfile {
   id: string
@@ -87,7 +88,8 @@ export default function PerfilPage() {
       }
     } catch (error: any) {
       console.error('Erro ao carregar perfil:', error)
-      toast.error('Erro ao carregar dados do perfil')
+      const { message } = getApiErrorMessage(error)
+      toast.error(message || 'Erro ao carregar dados do perfil')
     } finally {
       setIsLoading(false)
     }
@@ -116,7 +118,8 @@ export default function PerfilPage() {
       }
     } catch (error: any) {
       console.error('Erro ao atualizar perfil:', error)
-      toast.error('Erro ao atualizar perfil')
+      const { message } = getApiErrorMessage(error)
+      toast.error(message || 'Erro ao atualizar perfil')
     }
   }
 

@@ -11,6 +11,7 @@ import Link from "next/link"
 import Image from "next/image"
 import api from "@/lib/axios"
 import { toast } from "sonner"
+import { getApiErrorMessage } from "@/lib/error-utils"
 
 function ResetPassContent() {
   const router = useRouter()
@@ -101,17 +102,11 @@ function ResetPassContent() {
       setStatus('error')
       setIsSubmitting(false)
       
-      if (error.response?.status === 400) {
-        setMessage('Token inválido ou expirado. Solicite um novo link de redefinição.')
-      } else if (error.response?.status === 404) {
-        setMessage('Token não encontrado. Verifique o link recebido por email.')
-      } else if (error.response?.data?.message) {
-        setMessage(error.response.data.message)
-      } else {
-        setMessage('Erro ao redefinir senha. Tente novamente mais tarde.')
-      }
+      // Usar função utilitária para extrair mensagem de erro
+      const { message } = getApiErrorMessage(error)
       
-      toast.error('Erro ao alterar senha')
+      setMessage(message || 'Erro ao redefinir senha. Tente novamente mais tarde.')
+      toast.error(message || 'Erro ao alterar senha')
     } finally {
       setIsSubmitting(false)
     }

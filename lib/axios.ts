@@ -58,6 +58,11 @@ api.interceptors.response.use(
         data: error.response?.data,
         message: error.message
       })
+      
+      // Log específico da propriedade "Message" se existir
+      if (error.response?.data?.Message) {
+        console.log('💬 Mensagem do backend:', error.response.data.Message)
+      }
     }
 
     // Se token expirou ou é inválido, remover do localStorage

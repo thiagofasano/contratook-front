@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Shield, ArrowLeft } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { PublicRoute } from "@/components/protected-route"
+import { getApiErrorMessage } from "@/lib/error-utils"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -64,13 +65,16 @@ export default function LoginPage() {
       } catch (error: any) {
         console.error('Erro no login:', error)
         
+        // Usar função utilitária para extrair mensagem de erro
+        const { message } = getApiErrorMessage(error)
+        
         // Tratar diferentes tipos de erro
         if (error.response?.status === 401) {
-          setErrors({ password: 'E-mail ou senha incorretos' })
+          setErrors({ password: message || 'E-mail ou senha incorretos' })
         } else if (error.response?.status === 400) {
-          setErrors({ email: 'Dados inválidos' })
+          setErrors({ email: message || 'Dados inválidos' })
         } else {
-          setErrors({ email: 'Erro no servidor. Tente novamente.' })
+          setErrors({ email: message || 'Erro no servidor. Tente novamente.' })
         }
       } finally {
         setIsLoading(false)

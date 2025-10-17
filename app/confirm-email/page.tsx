@@ -8,6 +8,7 @@ import { CheckCircle, XCircle, Loader2, Mail, Shield } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import api from "@/lib/axios"
+import { getApiErrorMessage } from "@/lib/error-utils"
 
 function ConfirmEmailContent() {
   const router = useRouter()
@@ -45,15 +46,10 @@ function ConfirmEmailContent() {
         console.error('Erro ao confirmar email:', error)
         setStatus('error')
         
-        if (error.response?.status === 400) {
-          setMessage('Token inválido ou expirado. Solicite um novo email de confirmação.')
-        } else if (error.response?.status === 404) {
-          setMessage('Token não encontrado. Verifique o link recebido por email.')
-        } else if (error.response?.data?.message) {
-          setMessage(error.response.data.message)
-        } else {
-          setMessage('Erro ao confirmar email. Tente novamente mais tarde.')
-        }
+        // Usar função utilitária para extrair mensagem de erro
+        const { message } = getApiErrorMessage(error)
+        
+        setMessage(message || 'Erro ao confirmar email. Tente novamente mais tarde.')
       }
     }
 

@@ -7,6 +7,9 @@ export function getApiErrorMessage(error: any): { title: string; message: string
     // Se a API retornou uma mensagem de erro específica
     if (typeof error.response.data === 'string') {
       errorMessage = error.response.data
+    } else if (error.response.data.Message) {
+      // Priorizar "Message" com M maiúsculo (padrão do backend)
+      errorMessage = error.response.data.Message
     } else if (error.response.data.message) {
       errorMessage = error.response.data.message
     } else if (error.response.data.error) {
@@ -95,4 +98,16 @@ export function getAnalysisErrorMessage(error: any): { title: string; message: s
   }
   
   return { title: title.includes("análise") ? title : "❌ Erro na análise", message }
+}
+
+// Função utilitária para exibir toasts de erro padronizados
+export function showErrorToast(error: any, toast: any, context?: string) {
+  const { title, message } = getApiErrorMessage(error)
+  
+  toast({
+    title: context ? `${context} - ${title}` : title,
+    description: message,
+    variant: "destructive",
+    duration: 5000,
+  })
 }

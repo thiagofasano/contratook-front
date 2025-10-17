@@ -14,6 +14,7 @@ import { Shield, ArrowLeft, Mail } from "lucide-react"
 import { PublicRoute } from "@/components/protected-route"
 import api from "@/lib/axios"
 import { useToast } from "@/hooks/use-toast"
+import { getApiErrorMessage } from "@/lib/error-utils"
 
 export default function ForgotPasswordPage() {
   const router = useRouter()
@@ -64,32 +65,16 @@ export default function ForgotPasswordPage() {
     } catch (error: any) {
       console.error('❌ Erro na recuperação:', error)
       
-      // Tratar diferentes tipos de erro
-      if (error.response?.status === 404) {
-        setError("E-mail não encontrado")
-        toast({
-          title: "⚠️ E-mail não encontrado",
-          description: "Este e-mail não está cadastrado em nossa base de dados.",
-          variant: "destructive",
-          duration: 5000,
-        })
-      } else if (error.response?.status === 400) {
-        setError("E-mail inválido")
-        toast({
-          title: "⚠️ E-mail inválido",
-          description: "Verifique se o e-mail está correto e tente novamente.",
-          variant: "destructive",
-          duration: 5000,
-        })
-      } else {
-        setError("Erro no servidor. Tente novamente.")
-        toast({
-          title: "🔧 Problema no servidor",
-          description: "Algo deu errado. Aguarde um momento e tente novamente.",
-          variant: "destructive",
-          duration: 6000,
-        })
-      }
+      // Usar função utilitária para extrair mensagem de erro
+      const { title, message } = getApiErrorMessage(error)
+      
+      setError(message)
+      toast({
+        title: title,
+        description: message,
+        variant: "destructive",
+        duration: 5000,
+      })
     } finally {
       setIsLoading(false)
     }
