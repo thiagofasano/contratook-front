@@ -361,15 +361,6 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
 
   const handleCreateContract = async () => {
     // Validações
-    if (!contractFile) {
-      toast({
-        variant: "destructive",
-        title: "❌ Arquivo obrigatório",
-        description: "Selecione um arquivo de contrato para cadastrar.",
-      })
-      return
-    }
-
     if (!contractTitle.trim()) {
       toast({
         variant: "destructive",
@@ -393,13 +384,15 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
 
       console.log('📄 Criando novo contrato:', {
         title: contractTitle,
-        file: contractFile.name,
+        file: contractFile?.name || 'Sem arquivo anexado',
         expirationDate: contractExpirationDate
       })
 
       // Criar FormData para envio multipart
       const formData = new FormData()
-      formData.append('file', contractFile)
+      if (contractFile) {
+        formData.append('file', contractFile)
+      }
       formData.append('title', contractTitle)
       
       // Adicionar hora zerada à data (00:00:00) para o formato esperado pela API
@@ -675,7 +668,7 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
               </div>
             </CollapsibleTrigger>
             <CardDescription>
-              Adicione um novo contrato para receber alertas de vencimento
+              Adicione um novo contrato para receber alertas de vencimento. O anexo do arquivo é opcional.
             </CardDescription>
           </CardHeader>
           <CollapsibleContent>
@@ -684,7 +677,7 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
             <div className="grid gap-4">
             {/* Upload de Arquivo */}
             <div className="space-y-2">
-              <Label htmlFor="contractFile">Arquivo do Contrato</Label>
+              <Label htmlFor="contractFile">Arquivo do Contrato (Opcional)</Label>
               <div className="flex items-center gap-4">
                 <Input
                   id="contractFile"
@@ -708,7 +701,7 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
                 )}
               </div>
               <p className="text-xs text-muted-foreground">
-                Formatos aceitos: PDF, DOC, DOCX (máx. 10MB)
+                Anexe o arquivo se desejar. Formatos aceitos: PDF, DOC, DOCX (máx. 10MB)
               </p>
             </div>
 
