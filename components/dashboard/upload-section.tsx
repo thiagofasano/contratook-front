@@ -22,7 +22,7 @@ interface AnalysisResponse {
   pontosAtencao: string[]
   sugestoes: string[]
   leis: string[]
-  guid?: string // GUID da análise para download
+  analysisGuid?: string // GUID da análise para download
 }
 
 interface UploadSectionProps {
@@ -103,7 +103,7 @@ export function UploadSection({ onAnalysisComplete, onStatsUpdate }: UploadSecti
         fileName: file.name,
         date: new Date().toISOString(),
         summary: response.data.resumo,
-        guid: response.data.guid, // Incluir GUID para download
+        analysisGuid: response.data.analysisGuid, // Incluir GUID para download
         abusiveClauses: response.data.pontosAtencao.map((ponto, index) => ({
           id: index + 1,
           clause: `Ponto de Atenção ${index + 1}`,
@@ -216,7 +216,7 @@ export function UploadSection({ onAnalysisComplete, onStatsUpdate }: UploadSecti
         fileName: contractTitle,
         date: new Date().toISOString(),
         summary: response.data.resumo,
-        guid: response.data.guid, // Incluir GUID para download
+        analysisGuid: response.data.analysisGuid, // Incluir GUID para download
         abusiveClauses: response.data.pontosAtencao.map((ponto, index) => ({
           id: index + 1,
           clause: `Ponto de Atenção ${index + 1}`,
