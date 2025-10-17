@@ -674,62 +674,65 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
       )}
 
       
-      {/* Botão para Cadastrar Contrato */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Plus className="h-5 w-5" />
-            Cadastrar Contrato
-          </CardTitle>
-          <CardDescription>
-            Adicione um novo contrato para receber alertas de vencimento
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button
-            onClick={() => setIsContractRegistrationModalOpen(true)}
-            className="w-full cursor-pointer hover:scale-105 transition-transform"
-            size="lg"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Cadastrar Novo Contrato
-          </Button>
-        </CardContent>
-      </Card>
+      {/* Grid responsiva para Cards de Ação */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Cadastrar Contrato */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Plus className="h-5 w-5" />
+              Cadastrar Contrato
+            </CardTitle>
+            <CardDescription>
+              Adicione um novo contrato para receber alertas de vencimento
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={() => setIsContractRegistrationModalOpen(true)}
+              className="w-full cursor-pointer hover:scale-105 transition-transform"
+              size="lg"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Cadastrar Novo Contrato
+            </Button>
+          </CardContent>
+        </Card>
 
-      {/* Botão para Configurações */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Configurações de Alertas
-          </CardTitle>
-          <CardDescription>
-            Personalize quando você deseja receber notificações
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <Button
-            onClick={handleOpenAlertModal}
-            className="w-full cursor-pointer hover:scale-105 transition-transform"
-            size="lg"
-            variant="outline"
-          >
-            <Bell className="mr-2 h-4 w-4" />
-            Configurar Tempo de Alerta
-          </Button>
-          
-          <Button
-            onClick={handleOpenEmailModal}
-            className="w-full cursor-pointer hover:scale-105 transition-transform"
-            size="lg"
-            variant="outline"
-          >
-            <Settings className="mr-2 h-4 w-4" />
-            Configurar Destinatários
-          </Button>
-        </CardContent>
-      </Card>
+        {/* Configurações de Alertas */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              Configurações de notificações
+            </CardTitle>
+            <CardDescription>
+              Personalize quando você deseja receber notificações
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button
+              onClick={handleOpenAlertModal}
+              className="w-full cursor-pointer hover:scale-105 transition-transform"
+              size="lg"
+              variant="outline"
+            >
+              <Bell className="mr-2 h-4 w-4" />
+              Configurar Tempo de Alerta
+            </Button>
+            
+            <Button
+              onClick={handleOpenEmailModal}
+              className="w-full cursor-pointer hover:scale-105 transition-transform"
+              size="lg"
+              variant="outline"
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              Configurar Destinatários
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
 
 
       {/* Modal de Configuração de Alerta */}
