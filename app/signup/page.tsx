@@ -186,7 +186,7 @@ export default function SignupPage() {
                       <p className="text-lg font-bold text-foreground">
                         {planDetails[plan as keyof typeof planDetails].name}
                       </p>
-                      <p>3 análises por mês</p>
+                      <p>3 análises/mês</p>
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold text-primary">
