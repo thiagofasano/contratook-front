@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Shield, ArrowLeft, Mail, CheckCircle,FileText, Sparkles, Lock, Server  } from "lucide-react"
+import { Shield, ArrowLeft, Mail, CheckCircle,FileText, Sparkles, Lock, Server, RefreshCw  } from "lucide-react"
 import { PublicRoute } from "@/components/protected-route"
 import api from "@/lib/axios"
 import { useToast } from "@/hooks/use-toast"
@@ -30,6 +30,7 @@ export default function SignupPage() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
   const [isEmailSent, setIsEmailSent] = useState(false)
+  const [isResendingEmail, setIsResendingEmail] = useState(false)
 
   const planDetails = {
     free: { name: "Grátis", price: "R$ 0/mês" },
@@ -73,6 +74,38 @@ export default function SignupPage() {
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
+  }
+
+  const handleResendEmail = async () => {
+    setIsResendingEmail(true)
+    try {
+      const response = await api.post('/auth/resend-confirmation', {
+        email: formData.email
+      })
+
+      console.log('✅ E-mail de confirmação reenviado:', response.data)
+      
+      toast({
+        title: "📧 E-mail reenviado!",
+        description: "Verifique sua caixa de entrada novamente.",
+        duration: 3000,
+      })
+      
+    } catch (error: any) {
+      console.error('❌ Erro ao reenviar e-mail:', error)
+      
+      // Usar função utilitária para extrair mensagem de erro
+      const { title, message } = getApiErrorMessage(error)
+      
+      toast({
+        title: title,
+        description: message,
+        variant: "destructive",
+        duration: 5000,
+      })
+    } finally {
+      setIsResendingEmail(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -309,17 +342,12 @@ export default function SignupPage() {
                   
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      // Aqui você pode implementar reenvio do e-mail
-                      toast({
-                        title: "E-mail reenviado!",
-                        description: "Verifique sua caixa de entrada novamente.",
-                        duration: 3000,
-                      })
-                    }}
+                    onClick={handleResendEmail}
+                    disabled={isResendingEmail}
                     className="w-full"
                   >
-                    Reenviar e-mail de confirmação
+                    <RefreshCw className={`h-4 w-4 mr-2 ${isResendingEmail ? 'animate-spin' : ''}`} />
+                    {isResendingEmail ? "Reenviando..." : "Reenviar e-mail de confirmação"}
                   </Button>
                 </div>
               </CardContent>
