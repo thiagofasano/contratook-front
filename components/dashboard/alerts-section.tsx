@@ -63,6 +63,7 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
   const [isCreatingContract, setIsCreatingContract] = useState(false)
   const [isRegistrationExpanded, setIsRegistrationExpanded] = useState(false)
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(false)
+  const [isOtherContractsExpanded, setIsOtherContractsExpanded] = useState(false)
 
   // Buscar contratos da API
   const fetchContracts = async (showRefreshIndicator = false) => {
@@ -114,6 +115,21 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
       .filter(contract => {
         const expirationDate = new Date(contract.expirationDate)
         return expirationDate >= now && expirationDate <= inAlertDays
+      })
+      .sort((a, b) => new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime()) // Ordenar por data de expiração
+  }
+
+  // Filtrar contratos que NÃO estão expirando (para exibir separadamente)
+  const getOtherContracts = (contractsList: Contract[] = contracts) => {
+    const now = new Date()
+    const inAlertDays = new Date()
+    inAlertDays.setDate(now.getDate() + alertTime)
+
+    return contractsList
+      .filter(contract => contract.active) // Apenas contratos ativos
+      .filter(contract => {
+        const expirationDate = new Date(contract.expirationDate)
+        return expirationDate > inAlertDays // Contratos que vencem depois do período de alerta
       })
       .sort((a, b) => new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime()) // Ordenar por data de expiração
   }
@@ -417,6 +433,103 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
   }
 
   const expiringContracts = getExpiringContracts()
+  const otherContracts = getOtherContracts()
+
+  // Componente para renderizar um contrato
+  const ContractCard = ({ contract, isExpiring = true }: { contract: Contract; isExpiring?: boolean }) => {
+    const priority = getContractPriority(contract.expirationDate)
+    const description = getContractDescription(contract.expirationDate)
+    
+    return (
+      <div 
+        key={contract.id} 
+        className={`flex items-start justify-between p-4 border rounded-lg transition-colors ${
+          isExpiring 
+            ? "border-border hover:bg-accent/50" 
+            : "border-muted bg-muted/30 hover:bg-muted/50"
+        }`}
+      >
+        <div className="flex items-start gap-4 flex-1">
+          <div
+            className={`p-2 rounded-lg ${
+              isExpiring 
+                ? priority === "high"
+                  ? "bg-destructive/10"
+                  : priority === "medium"
+                    ? "bg-primary/10"
+                    : "bg-muted"
+                : "bg-muted"
+            }`}
+          >
+            <Calendar className={`h-6 w-6 ${
+              isExpiring 
+                ? priority === "high"
+                  ? "text-destructive"
+                  : priority === "medium"
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                : "text-muted-foreground"
+            }`} />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <h4 className={`font-semibold ${!isExpiring ? "text-muted-foreground" : ""}`}>
+                {contract.title}
+              </h4>
+              {isExpiring && (
+                <Badge variant={getPriorityColor(priority)}>
+                  {getPriorityLabel(priority)}
+                </Badge>
+              )}
+              {!isExpiring && (
+                <Badge variant="outline" className="text-muted-foreground">
+                  Em dia
+                </Badge>
+              )}
+            </div>
+            <p className={`text-sm mb-2 ${!isExpiring ? "text-muted-foreground" : "text-muted-foreground"}`}>
+              {description}
+            </p>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Calendar className="h-4 w-4" />
+              <span>
+                Vencimento:{" "}
+                {new Date(contract.expirationDate).toLocaleDateString("pt-BR", {
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant={isExpiring ? "outline" : "ghost"}
+            size="sm"
+            onClick={() => handleViewContract(contract)}
+            className="cursor-pointer hover:scale-105 transition-transform"
+          >
+            <FileText className="mr-2 h-4 w-4" />
+            Ver Contrato
+          </Button>
+          {isExpiring && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => handleDismiss(contract.id)}
+              className="cursor-pointer hover:scale-105 transition-transform"
+              title="Dispensar alerta"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -460,80 +573,48 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
             </div>
           ) : (
             <div className="space-y-4">
-              {expiringContracts.map((contract) => {
-                const priority = getContractPriority(contract.expirationDate)
-                const description = getContractDescription(contract.expirationDate)
-                
-                return (
-                  <div key={contract.id} className="flex items-start justify-between p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors">
-                    <div className="flex items-start gap-4 flex-1">
-                      <div
-                        className={`p-2 rounded-lg ${
-                          priority === "high"
-                            ? "bg-destructive/10"
-                            : priority === "medium"
-                              ? "bg-primary/10"
-                              : "bg-muted"
-                        }`}
-                      >
-                        <Calendar className={`h-6 w-6 ${
-                          priority === "high"
-                            ? "text-destructive"
-                            : priority === "medium"
-                              ? "text-primary"
-                              : "text-muted-foreground"
-                        }`} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-semibold">{contract.title}</h4>
-                          <Badge variant={getPriorityColor(priority)}>
-                            {getPriorityLabel(priority)}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-2">{description}</p>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Calendar className="h-4 w-4" />
-                          <span>
-                            Vencimento:{" "}
-                            {new Date(contract.expirationDate).toLocaleDateString("pt-BR", {
-                              day: "2-digit",
-                              month: "long",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleViewContract(contract)}
-                        className="cursor-pointer hover:scale-105 transition-transform"
-                      >
-                        <FileText className="mr-2 h-4 w-4" />
-                        Ver Contrato
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => handleDismiss(contract.id)}
-                        className="cursor-pointer hover:scale-105 transition-transform"
-                        title="Dispensar alerta"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                )
-              })}
+              {expiringContracts.map((contract) => (
+                <ContractCard key={contract.id} contract={contract} isExpiring={true} />
+              ))}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Seção para Outros Contratos */}
+      {!isLoading && otherContracts.length > 0 && (
+        <Card>
+          <Collapsible open={isOtherContractsExpanded} onOpenChange={setIsOtherContractsExpanded}>
+            <CardHeader>
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between cursor-pointer hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-muted-foreground" />
+                    <CardTitle className="text-muted-foreground">Outros Contratos</CardTitle>
+                  </div>
+                  <ChevronDown 
+                    className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${
+                      isOtherContractsExpanded ? 'rotate-180' : ''
+                    }`} 
+                  />
+                </div>
+              </CollapsibleTrigger>
+              <CardDescription>
+                Contratos cadastrados que não estão próximos do vencimento ({otherContracts.length} contrato{otherContracts.length !== 1 ? 's' : ''})
+              </CardDescription>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent className="pt-0">
+                <div className="space-y-3">
+                  {otherContracts.map((contract) => (
+                    <ContractCard key={contract.id} contract={contract} isExpiring={false} />
+                  ))}
+                </div>
+              </CardContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </Card>
+      )}
 
       
       {/* Cadastro de Novo Contrato */}
