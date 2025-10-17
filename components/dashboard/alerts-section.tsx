@@ -707,7 +707,7 @@ export function AlertsSection({ onStatsUpdate }: AlertsSectionProps) {
               Configurações de notificações
             </CardTitle>
             <CardDescription>
-              Personalize quando você deseja receber notificações
+              Personalize como você deseja receber notificações
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
