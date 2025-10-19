@@ -4,6 +4,7 @@ import { GeistMono } from 'geist/font/mono'
 import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/hooks/use-auth'
 import { Toaster } from '@/components/ui/toaster'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -20,9 +21,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </GoogleOAuthProvider>
         <Toaster />
         <Analytics />
       </body>

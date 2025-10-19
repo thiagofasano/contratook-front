@@ -107,6 +107,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth()
   }, [])
 
+  // Listener para mudanças no localStorage (útil para login/logout em outras abas)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'authToken') {
+        // Token foi alterado, verificar autenticação novamente
+        checkAuth()
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [checkAuth])
+
   // Interceptor para logout automático quando token expira
   useEffect(() => {
     const interceptor = api.interceptors.response.use(
@@ -134,7 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     logout,
     checkAuth,
-  }), [user, isLoading, isAuthenticated, login, logout])
+  }), [user, isLoading, isAuthenticated, login, logout, checkAuth])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

@@ -14,10 +14,13 @@ import { Shield, ArrowLeft } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { PublicRoute } from "@/components/protected-route"
 import { getApiErrorMessage } from "@/lib/error-utils"
+import { GoogleLogin } from '@react-oauth/google'
+import { toast } from "sonner"
+import api from "@/lib/axios"
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login } = useAuth()
+  const { login, checkAuth } = useAuth()
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -82,6 +85,49 @@ export default function LoginPage() {
     }
   }
 
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      setIsLoading(true)
+      
+      const googleToken = credentialResponse.credential
+      
+      console.log('📱 Processando login com Google...')
+      
+      const response = await api.post('/auth/google', {
+        googleToken,
+        planId: 1
+      })
+      
+      if (response.data.token) {
+        // Armazenar token
+        localStorage.setItem('authToken', response.data.token)
+        
+        // Atualizar o estado do usuário no AuthProvider
+        await checkAuth()
+        
+        console.log('✅ Login com Google realizado com sucesso')
+        toast.success('Login realizado com sucesso!')
+        
+        // Redirecionar para dashboard
+        router.push('/dashboard')
+      } else {
+        throw new Error('Token não recebido')
+      }
+      
+    } catch (error: any) {
+      console.error('❌ Erro no login com Google:', error)
+      const { message } = getApiErrorMessage(error)
+      toast.error(message || 'Erro no login com Google')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleError = () => {
+    console.error('❌ Erro no login com Google')
+    toast.error('Erro no login com Google')
+  }
+
   return (
     <PublicRoute>
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -110,8 +156,38 @@ export default function LoginPage() {
               <CardDescription>Entre com suas credenciais para acessar sua conta</CardDescription>
             </CardHeader>
 
-            <form onSubmit={handleSubmit}>
-              <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
+              {/* Destaque para o Google Login */}
+              <div className="space-y-4">
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <div className="text-center space-y-3">
+                    <div className="w-full flex justify-center">
+                      <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={handleGoogleError}
+                        theme="outline"
+                        size="large"
+                        width="100%"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Divisor */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    ou use e-mail e senha
+                  </span>
+                </div>
+              </div>
+
+              {/* Formulário tradicional */}
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">E-mail</Label>
                   <Input
@@ -127,34 +203,33 @@ export default function LoginPage() {
                   {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                 </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Senha</Label>
-                  <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-                    Esqueceu a senha?
-                  </Link>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Senha</Label>
+                    <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+                      Esqueceu a senha?
+                    </Link>
+                  </div>
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder="Digite sua senha"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className={errors.password ? "border-destructive" : ""}
+                    disabled={isLoading}
+                  />
+                  {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                 </div>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="Digite sua senha"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={errors.password ? "border-destructive" : ""}
-                  disabled={isLoading}
-                />
-                {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
-              </div>
+
+                <Button type="submit" className="w-full cursor-pointer hover:scale-105 transition-transform" size="lg" disabled={isLoading}>
+                  {isLoading ? "Entrando..." : "Entrar"}
+                </Button>
+              </form>
             </CardContent>
 
-            <br />
-
             <CardFooter className="flex flex-col gap-4">
-              <Button type="submit" className="w-full cursor-pointer hover:scale-105 transition-transform" size="lg" disabled={isLoading}>
-                {isLoading ? "Entrando..." : "Entrar"}
-              </Button>
-
               <p className="text-sm text-muted-foreground text-center">
                 Não tem uma conta?{" "}
                 <Link href="/signup" className="text-primary hover:underline cursor-pointer">
@@ -162,7 +237,6 @@ export default function LoginPage() {
                 </Link>
               </p>
             </CardFooter>
-          </form>
         </Card>
       </div>
     </div>

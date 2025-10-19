@@ -16,18 +16,21 @@ import { PublicRoute } from "@/components/protected-route"
 import api from "@/lib/axios"
 import { useToast } from "@/hooks/use-toast"
 import { getApiErrorMessage } from "@/lib/error-utils"
+import { GoogleLogin } from '@react-oauth/google'
 import { add } from "date-fns"
+import { useAuth } from "@/hooks/use-auth"
 
 
 export default function SignupPage() {
   const router = useRouter()
   const { toast } = useToast()
+  const { checkAuth } = useAuth()
   const [plan] = useState<string>("free")
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
-    acceptTerms: false,
+    acceptTerms: true,
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
@@ -75,9 +78,7 @@ export default function SignupPage() {
       newErrors.confirmPassword = "As senhas não coincidem"
     }
 
-    if (!formData.acceptTerms) {
-      newErrors.acceptTerms = "Você deve aceitar os termos de uso para continuar"
-    }
+
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -182,6 +183,63 @@ export default function SignupPage() {
     }
   }
 
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      setIsLoading(true)
+      
+      const googleToken = credentialResponse.credential
+      
+      console.log('📱 Processando cadastro com Google...')
+      
+      const response = await api.post('/auth/google', {
+        googleToken,
+        planId: getPlanId(plan)
+      })
+      
+      if (response.data.token) {
+        // Armazenar token
+        localStorage.setItem('authToken', response.data.token)
+        
+        // Atualizar o estado do usuário no AuthProvider
+        await checkAuth()
+        
+        console.log('✅ Cadastro com Google realizado com sucesso')
+        toast({
+          title: "🎉 Conta criada com sucesso!",
+          description: "Login com Google realizado com sucesso!",
+          duration: 5000,
+        })
+        
+        // Redirecionar para dashboard
+        router.push('/dashboard')
+      } else {
+        throw new Error('Token não recebido')
+      }
+      
+    } catch (error: any) {
+      console.error('❌ Erro no cadastro com Google:', error)
+      const { title, message } = getApiErrorMessage(error)
+      
+      toast({
+        title: title,
+        description: message || 'Erro no cadastro com Google',
+        variant: "destructive",
+        duration: 5000,
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleError = () => {
+    console.error('❌ Erro no cadastro com Google')
+    toast({
+      title: "Erro",
+      description: "Erro no cadastro com Google",
+      variant: "destructive",
+    })
+  }
+
   return (
     <PublicRoute>
       <div className="min-h-screen bg-background p-4">
@@ -231,8 +289,38 @@ export default function SignupPage() {
                 </div>
               </CardHeader>
 
-              <form onSubmit={handleSubmit}>
-                <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
+                {/* Destaque para o Google Signup */}
+                <div className="space-y-4">
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <div className="text-center space-y-3">
+                      <div className="w-full flex justify-center">
+                        <GoogleLogin
+                          onSuccess={handleGoogleSuccess}
+                          onError={handleGoogleError}
+                          theme="outline"
+                          size="large"
+                          width="100%"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Divisor */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      ou cadastre-se com e-mail
+                    </span>
+                  </div>
+                </div>
+
+                {/* Formulário tradicional */}
+                <form onSubmit={handleSubmit} className="space-y-4">
                   {/* Email and Password */}
                   <div className="space-y-2">
                     <Label htmlFor="email">E-mail</Label>
@@ -279,61 +367,38 @@ export default function SignupPage() {
                     {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
                   </div>
 
-                  {/* Termos de Uso */}
-                  <div className="space-y-2">
-                    <div className="flex items-start space-x-2">
-                      <Checkbox
-                        id="acceptTerms"
-                        name="acceptTerms"
-                        checked={formData.acceptTerms}
-                        onCheckedChange={(checked) => {
-                          setFormData((prev) => ({ ...prev, acceptTerms: checked as boolean }))
-                          if (errors.acceptTerms) {
-                            setErrors((prev) => ({ ...prev, acceptTerms: "" }))
-                          }
-                        }}
-                        disabled={isLoading}
-                        className={errors.acceptTerms ? "border-destructive" : ""}
-                      />
-                      <div className="grid gap-1.5 leading-none">
-                        <Label 
-                          htmlFor="acceptTerms"
-                          className="text-sm font-normal leading-relaxed cursor-pointer"
-                        >
-                          Li e aceito os{" "}
-                          <Link 
-                            href="/termos-de-uso" 
-                            target="_blank"
-                            className="text-primary hover:underline"
-                          >
-                            termos de uso
-                          </Link>{" "}
-                          do serviço
-                        </Label>
-                      </div>
-                    </div>
-                    {errors.acceptTerms && <p className="text-sm text-destructive ml-6">{errors.acceptTerms}</p>}
-                  </div>
-                </CardContent>
+                  {/* Termos de uso no formulário tradicional */}
+                  <p className="text-xs text-muted-foreground text-center">
+                    Ao continuar declaro que li e aceito os{" "}
+                    <Link 
+                      href="/termos-de-uso" 
+                      target="_blank"
+                      className="text-primary hover:underline font-medium"
+                    >
+                      termos de uso
+                    </Link>
+                    .
+                  </p>
 
-                <CardFooter className="flex flex-col gap-4">
                   <Button 
                     type="submit" 
                     className="w-full cursor-pointer hover:scale-105 transition-transform" 
                     size="lg"
-                    disabled={isLoading || !formData.acceptTerms}
+                    disabled={isLoading}
                   >
                     {isLoading ? "Criando conta..." : "Criar Conta"}
                   </Button>
+                </form>
+              </CardContent>
 
-                  <p className="text-sm text-muted-foreground text-center">
-                    Já tem uma conta?{" "}
-                    <Link href="/login" className="text-primary hover:underline cursor-pointer">
-                      Fazer login
-                    </Link>
-                  </p>
-                </CardFooter>
-              </form>
+              <CardFooter className="flex flex-col gap-4">
+                <p className="text-sm text-muted-foreground text-center">
+                  Já tem uma conta?{" "}
+                  <Link href="/login" className="text-primary hover:underline cursor-pointer">
+                    Fazer login
+                  </Link>
+                </p>
+              </CardFooter>
 
             </>
           ) : (
