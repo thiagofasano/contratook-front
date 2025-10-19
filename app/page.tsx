@@ -238,7 +238,7 @@ export default function HomePage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Os contratos são processados por meio de conexões criptografadas (HTTPS) e não ficam salvos em nossos servidores após a análise, garantindo privacidade total.
+                Análises processados por meio de conexões criptografadas. Nenhum arquivo é armazenado ou visto por pessoas, garantindo privacidade total.
               </p>
             </CardContent>
           </Card>
@@ -293,14 +293,14 @@ export default function HomePage() {
                 <div className="relative">
                   <div className="w-full max-w-[600px] h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] bg-white rounded-2xl shadow-2xl overflow-hidden">
                     <video
-                      src="/contract-analysis.mp4"
+                      src="/robo.mp4"
                       autoPlay
                       loop
                       muted
                       playsInline
                       controls={false}
                       preload="auto"
-                      className="w-full h-full object-cover scale-150"
+                      className="w-full h-full object-cover scale-100"
                     />
                   </div>
                   {/* Floating badge */}
@@ -338,7 +338,7 @@ export default function HomePage() {
               <CardContent>
                 <p className="text-muted-foreground">
                  Os documentos enviados são processados de forma totalmente segura.
-Nenhum contrato é armazenado ou utilizado para treinar modelos de IA — a análise ocorre apenas para gerar o resultado solicitado.
+Nenhum contrato é armazenado ou utilizado para outro fim — a análise ocorre apenas para gerar o resultado solicitado.
                 </p>
               </CardContent>
             </Card>
@@ -350,7 +350,7 @@ Nenhum contrato é armazenado ou utilizado para treinar modelos de IA — a aná
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Utilizamos a tecnologia GPT da OpenAI — a mesma base utilizada por grandes empresas globais — em sua versão profissional e segura, com confidencialidade garantida.
+                  Utilizamos a tecnologia da OpenAI — a mesma base utilizada por grandes empresas globais — em sua versão profissional e segura, com confidencialidade garantida.
                 </p>
               </CardContent>
             </Card>

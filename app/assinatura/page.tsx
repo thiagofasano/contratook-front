@@ -20,8 +20,8 @@ function AssinaturaForm() {
   
   const plan = searchParams.get('plan') || 'plus'
   const planDetails = {
-    plus: { name: 'Plus', price: 'R$ 49', description: '30 análises por mês' },
-    premium: { name: 'Premium', price: 'R$ 129', description: '90 análises por mês' }
+    plus: { name: 'Plus', price: 'R$ 45', description: '30 análises por mês' },
+    premium: { name: 'Premium', price: 'R$ 99', description: '100 análises por mês' }
   }
   
   const [formData, setFormData] = useState({

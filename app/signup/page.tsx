@@ -529,7 +529,7 @@ export default function SignupPage() {
                 <div className="flex-1">
                   <CardTitle>Processamento Seguro</CardTitle>
                   <p className="text-muted-foreground mt-2">
-                    Os contratos são processados por meio de conexões criptografadas (HTTPS) e não ficam salvos em nossos servidores após a análise, garantindo privacidade total.
+                    Análises processados por meio de conexões criptografadas. Nenhum arquivo é armazenado ou visto por pessoas, garantindo privacidade total.
                   </p>
                 </div>
               </CardHeader>

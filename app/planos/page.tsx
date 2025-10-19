@@ -8,7 +8,7 @@ export default function PlanosPage() {
   const plans = [
     {
       name: "Plus",
-      price: "R$ 49",
+      price: "R$ 45",
       period: "/mês",
       description: "Para profissionais autônomos",
       features: [
@@ -26,11 +26,11 @@ export default function PlanosPage() {
     },
     {
       name: "Premium",
-      price: "R$ 129",
+      price: "R$ 99",
       period: "/mês",
       description: "Para escritórios e empresas",
       features: [
-        "90 Análises por mês",
+        "100 Análises por mês",
         "Análise completa e avançada com IA",
         "Identificação de cláusulas abusivas",
         "Sugestões personalizadas",
@@ -57,7 +57,6 @@ export default function PlanosPage() {
         "Download das análises em PDF",
         "Histórico de análises",
         "Gestão de Contratos - Notificações de vencimento",
-        "Suporte",
       ],
       cta: "Fale Conosco",
       href: "mailto:contato@contratodobem.com.br?subject=Interesse no Plano Personalizado",
@@ -126,7 +125,7 @@ export default function PlanosPage() {
               </div>
               <h3 className="text-xl font-semibold mb-2">Mais Análises</h3>
               <p className="text-muted-foreground">
-                Precisa revisar diversos contratos? Faça upgrade e analise mais. Aumente sua eficiência, reduza riscos e tome decisões com base em dados claros e confiáveis.
+                Aumente sua eficiência, reduza riscos e tome decisões com base em dados claros e confiáveis.
               </p>
             </div>
 
@@ -134,9 +133,9 @@ export default function PlanosPage() {
               <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Shield className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Recursos Avançados</h3>
+              <h3 className="text-xl font-semibold mb-2">Análise mais avançada</h3>
               <p className="text-muted-foreground">
-                Desbloqueie o poder da análise avançada e obtenha relatórios mais ricos e detalhados.
+                Desbloqueie o poder da análise mais avançada e rápida e obtenha relatórios mais ricos e detalhados.
               </p>
             </div>
 
@@ -146,9 +145,66 @@ export default function PlanosPage() {
               </div>
               <h3 className="text-xl font-semibold mb-2">Gestão de Contratos</h3>
               <p className="text-muted-foreground">
-                Cadastre seus contratos e receba notificações automáticas de vencimento, evitando esquecimentos e mantendo tudo sob controle em um só lugar.
+                Receba notificações automáticas de vencimento, evitando esquecimentos e tendo tudo sob controle em um só lugar.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      
+      {/* Privacy & Security Section */}
+      <section className="py-10">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-4">
+              <Lock className="h-4 w-4" />
+              <span>Privacidade e Segurança</span>
+            </div>
+            <h2 className="text-4xl font-bold mb-4">Seus dados estão seguros conosco</h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Utilizamos as mais altas tecnologias de segurança e criptografia para proteger suas informações e documentos contratuais.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+
+            <Card className="text-center">
+              <CardHeader>
+                <Eye className="h-12 w-12 text-black mb-6 mx-auto" />
+                <CardTitle>Privacidade e Confidencialidade</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                 Os documentos enviados são processados de forma totalmente segura.
+Nenhum contrato é armazenado ou utilizado para outro fim — a análise ocorre apenas para gerar o resultado solicitado.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardHeader>
+                <Server className="h-12 w-12 text-black mb-6 mx-auto" />
+                <CardTitle>Uso de tecnologia de ponta</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Utilizamos a tecnologia da OpenAI — a mesma base utilizada por grandes empresas globais — em sua versão profissional e segura, com confidencialidade garantida.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardHeader>
+                <Server className="h-12 w-12 text-black mb-6 mx-auto" />
+                <CardTitle>Conformidade total com a LGPD</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Em conformidade com a Lei Geral de Proteção de Dados (LGPD), os documentos são usados exclusivamente para o propósito de análise contratual solicitada pelo usuário
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
@@ -169,11 +225,11 @@ export default function PlanosPage() {
               className={plan.highlighted ? "border-primary shadow-lg shadow-primary/20" : ""}
             >
               <CardHeader>
-                {plan.highlighted && (
+                {/* {plan.highlighted && (
                   <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary text-primary-foreground text-xs font-medium mb-2 w-fit">
                     Recomendado
                   </div>
-                )}
+                )} */}
                 <CardTitle className="text-2xl">{plan.name}</CardTitle>
                 <CardDescription>{plan.description}</CardDescription>
                 <div className="mt-4">
@@ -208,61 +264,6 @@ export default function PlanosPage() {
       </section>
 
 
-      {/* Privacy & Security Section */}
-      <section className="py-10">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-4">
-              <Lock className="h-4 w-4" />
-              <span>Privacidade e Segurança</span>
-            </div>
-            <h2 className="text-4xl font-bold mb-4">Seus dados estão seguros conosco</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Utilizamos as mais altas tecnologias de segurança e criptografia para proteger suas informações e documentos contratuais.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-
-            <Card className="text-center">
-              <CardHeader>
-                <Eye className="h-12 w-12 text-black mb-6 mx-auto" />
-                <CardTitle>Privacidade e Confidencialidade</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                 Os documentos enviados são processados de forma totalmente segura.
-Nenhum contrato é armazenado ou utilizado para treinar modelos de IA — a análise ocorre apenas para gerar o resultado solicitado.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center">
-              <CardHeader>
-                <Server className="h-12 w-12 text-black mb-6 mx-auto" />
-                <CardTitle>Uso de tecnologia de ponta</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Utilizamos a tecnologia GPT da OpenAI — a mesma base utilizada por grandes empresas globais — em sua versão profissional e segura, com confidencialidade garantida.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center">
-              <CardHeader>
-                <Server className="h-12 w-12 text-black mb-6 mx-auto" />
-                <CardTitle>Conformidade total com a LGPD</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Em conformidade com a Lei Geral de Proteção de Dados (LGPD), os documentos são usados exclusivamente para o propósito de análise contratual solicitada pelo usuário
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
 
       {/* Footer */}
       <footer className="border-t border-border">
